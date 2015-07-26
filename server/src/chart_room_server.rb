@@ -3,13 +3,14 @@ $:.unshift(File.dirname(__FILE__))
 
 require 'socket'
 require 'json'
-require 'models/query_message'
-require 'models/text_message'
-require 'models/system_message'
-require 'models/join_message'
-require 'models/quit_message'
+require 'messages/query_message'
+require 'messages/text_message'
+require 'messages/system_message'
+require 'messages/join_message'
+require 'messages/quit_message'
 require 'services/chat_room_service'
 require 'services/broadcast_service'
+require 'services/user_service'
 
 
 class ChartRoomServer
@@ -25,7 +26,7 @@ class ChartRoomServer
       instance
     end
 
-    [ChatRoomService, BroadcastService].each do |clazz|
+    [ChatRoomService, BroadcastService, UserService].each do |clazz|
       get_instance(clazz)
     end
   end
@@ -55,7 +56,7 @@ class ChartRoomServer
     broadcast_service = get_instance(BroadcastService)
     broadcast_service.init_send_proc do |client, message|
       begin
-        client.send message
+        client.puts message
       rescue Exception => e
         puts 'broadcast send message raise exception:'
         puts e.message
@@ -73,7 +74,7 @@ class ChartRoomServer
         line.gsub! /\n|\r/, ''
         puts line
         begin
-          result = chat_room_service.process line
+          result = chat_room_service.process line, client
           client.puts(result) unless result.nil?
         rescue Exception => e
           puts e.message

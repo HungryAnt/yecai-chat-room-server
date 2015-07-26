@@ -1,8 +1,9 @@
 require 'socket'
-require_relative '../server/src/models/query_message'
-require_relative '../server/src/models/text_message'
-require_relative '../server/src/models/join_message'
-require_relative '../server/src/models/quit_message'
+require 'securerandom'
+require_relative '../server/src/messages/query_message'
+require_relative '../server/src/messages/text_message'
+require_relative '../server/src/messages/join_message'
+require_relative '../server/src/messages/quit_message'
 
 class DemoClient
   def initialize
@@ -20,6 +21,7 @@ class DemoClient
 
   def run
     print 'input your name: '
+    @user_id = SecureRandom.uuid
     @user_name = gets.chomp
 
     send_join_message
@@ -54,7 +56,7 @@ class DemoClient
   end
 
   def send_join_message
-    @s.puts(JoinMessage.new(@user_name).to_json)
+    @s.puts(JoinMessage.new(@user_id, @user_name).to_json)
   end
 
   def send_quit_message

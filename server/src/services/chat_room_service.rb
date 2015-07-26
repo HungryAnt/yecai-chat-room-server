@@ -1,6 +1,8 @@
 # coding: UTF-8
 
 require 'thread'
+require_relative 'broadcast_service'
+require_relative 'user_service'
 
 class ChatRoomService
   attr_reader :text_messages
@@ -11,15 +13,15 @@ class ChatRoomService
     @version_offset = 0
   end
 
-  def process(line)
+  def process(line, client)
     return nil if line.nil? || line == ''
     raw_massage_map = JSON.parse(line)
-    response_messages = process_message raw_massage_map
+    response_messages = process_message raw_massage_map, client
     return nil if response_messages.nil?
     to_json(response_messages) unless response_messages.nil?
   end
 
-  def process_message(raw_massage_map)
+  def process_message(raw_massage_map, client = nil)
     case raw_massage_map['type']
       when 'text_message'
         text_message = TextMessage.json_create(raw_massage_map)
@@ -32,20 +34,17 @@ class ChatRoomService
         return get_text_messages(query_message.version)
       when 'join_message'
         join_message = JoinMessage.json_create(raw_massage_map)
+        user_id = join_message.user_id
         user_name = join_message.user_name
+        user_service = get_instance(UserService)
+        user_service.add client, user_id, user_name
         system_message = SystemMessage.new "欢迎新成员 #{user_name} 加入"
-        @mutex.synchronize {
-          system_message.version = get_new_version
-          @text_messages << system_message
-        }
+        broadcast system_message
       when 'quit_message'
         quit_message = QuitMessage.json_create(raw_massage_map)
         user_name = quit_message.user_name
         system_message = SystemMessage.new "成员 #{user_name} 已退出"
-        @mutex.synchronize {
-          system_message.version = get_new_version
-          @text_messages << system_message
-        }
+        broadcast system_message
       else
         # type code here
     end
@@ -53,6 +52,11 @@ class ChatRoomService
   end
 
   private
+
+  def broadcast(message)
+    broadcast_service = get_instance(BroadcastService)
+    broadcast_service.send message.to_json
+  end
 
   def get_text_messages(min_version)
     text_messages = []
