@@ -86,7 +86,9 @@ class DemoClient
       next if line == ''
       text_message = TextMessage.json_create(JSON.parse(line))
       puts "[#{text_message.sender}: #{text_message.content}]"
-      @current_version = text_message.version + 1
+      if text_message.use_version?
+        @current_version = text_message.version + 1
+      end
     end
   end
 

@@ -3,9 +3,13 @@ require 'json'
 class TextMessage
   attr_accessor :sender, :content, :version
 
-  def initialize(sender, content, version=0)
+  def initialize(sender, content, version=-1)
     @sender, @content = sender, content
     @version = version
+  end
+
+  def use_version?
+    version >= 0
   end
 
   def type

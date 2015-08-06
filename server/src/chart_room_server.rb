@@ -67,24 +67,22 @@ class ChartRoomServer
 
   def accept(client)
     chat_room_service = get_instance(ChatRoomService)
-    loop {
-      while (line = client.readline)
-        next if line.nil?
-        line = line.chomp
-        line.gsub! /\n|\r/, ''
-        puts line
-        begin
-          result = chat_room_service.process line, client
-          client.puts(result) unless result.nil?
-        rescue Exception => e
-          puts e.message
-          puts e.backtrace.inspect
-        end
+    while (line = client.readline)
+      next if line.nil?
+      line = line.chomp
+      line.gsub! /\n|\r/, ''
+      puts line
+      begin
+        result = chat_room_service.process line, client
+        client.puts(result) unless result.nil?
+      rescue Exception => e
+        puts e.message
+        puts e.backtrace.inspect
       end
+    end
       # client.puts(Time.now.ctime) # 发送时间到客户端
       # client.puts "Closing the connection. Bye!"
-      # client.close
-    }
+    client.close
   end
 
 end
