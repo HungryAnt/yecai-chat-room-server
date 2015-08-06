@@ -3,6 +3,7 @@ $:.unshift(File.dirname(__FILE__))
 
 require 'socket'
 require 'json'
+require 'engine/dependency_injection'
 require 'messages/query_message'
 require 'messages/text_message'
 require 'messages/system_message'
@@ -15,20 +16,7 @@ require 'services/user_service'
 
 class ChartRoomServer
   def initialize
-    map = {}
-
-    Kernel.send :define_method, :get_instance do |clazz|
-      instance = map[clazz]
-      if instance.nil?
-        instance = clazz.new
-        map[clazz] = instance
-      end
-      instance
-    end
-
-    [ChatRoomService, BroadcastService, UserService].each do |clazz|
-      get_instance(clazz)
-    end
+    autowired(ChatRoomService, BroadcastService, UserService)
   end
 
   def init
@@ -36,8 +24,7 @@ class ChartRoomServer
     server = TCPServer.open(2000)
     loop {
       Thread.start(server.accept) do |client|
-        broadcast_service = get_instance BroadcastService
-        broadcast_service.add client
+        @broadcast_service.add client
         begin
           accept client
         rescue Exception => e
@@ -45,7 +32,7 @@ class ChartRoomServer
           puts e.message
           puts e.backtrace.inspect
         end
-        broadcast_service.delete client
+        @broadcast_service.delete client
       end
     }
   end
@@ -53,8 +40,7 @@ class ChartRoomServer
   private
 
   def init_broadcast
-    broadcast_service = get_instance(BroadcastService)
-    broadcast_service.init_send_proc do |client, message|
+    @broadcast_service.init_send_proc do |client, message|
       begin
         client.puts message
       rescue Exception => e
@@ -66,14 +52,13 @@ class ChartRoomServer
   end
 
   def accept(client)
-    chat_room_service = get_instance(ChatRoomService)
     while (line = client.readline)
       next if line.nil?
       line = line.chomp
       line.gsub! /\n|\r/, ''
       puts line
       begin
-        result = chat_room_service.process line, client
+        result = @chat_room_service.process line, client
         client.puts(result) unless result.nil?
       rescue Exception => e
         puts e.message

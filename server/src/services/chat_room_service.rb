@@ -8,6 +8,7 @@ class ChatRoomService
   attr_reader :text_messages
 
   def initialize
+    autowired(BroadcastService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -54,8 +55,7 @@ class ChatRoomService
   private
 
   def broadcast(message)
-    broadcast_service = get_instance(BroadcastService)
-    broadcast_service.send message.to_json
+    @broadcast_service.send message.to_json
   end
 
   def get_text_messages(min_version)
