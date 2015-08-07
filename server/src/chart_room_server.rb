@@ -9,6 +9,7 @@ require 'messages/text_message'
 require 'messages/system_message'
 require 'messages/join_message'
 require 'messages/quit_message'
+require 'services/message_handler_service'
 require 'services/chat_room_service'
 require 'services/broadcast_service'
 require 'services/user_service'
@@ -59,6 +60,7 @@ class ChartRoomServer
       puts line
       begin
         result = @chat_room_service.process line, client
+        puts result
         client.puts(result) unless result.nil?
       rescue Exception => e
         puts e.message

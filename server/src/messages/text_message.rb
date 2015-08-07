@@ -26,7 +26,7 @@ class TextMessage
   def self.json_create(map)
     new(map['data']['sender'],
         map['data']['content'],
-        map['data']['version'])
+        map['data']['version'].to_i)
   end
 end
 

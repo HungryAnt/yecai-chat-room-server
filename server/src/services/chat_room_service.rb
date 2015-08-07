@@ -8,48 +8,55 @@ class ChatRoomService
   attr_reader :text_messages
 
   def initialize
-    autowired(BroadcastService)
+    autowired(UserService, BroadcastService, MessageHandlerService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
+    init_message_handler
+  end
+
+  def init_message_handler
+    register('text_message') do |msg_map, params|
+      text_message = TextMessage.json_create(msg_map)
+      @mutex.synchronize {
+        text_message.version = get_new_version
+        @text_messages << text_message
+      }
+      nil
+    end
+
+    register('query_message') do |msg_map, params|
+      query_message = QueryMessage.json_create(msg_map)
+      get_text_messages(query_message.version)
+    end
+
+    register('join_message') do |msg_map, params|
+      join_message = JoinMessage.json_create(msg_map)
+      user_id = join_message.user_id
+      user_name = join_message.user_name
+      @user_service.add params[:client], user_id, user_name
+      broadcast SystemMessage.new "欢迎新成员 #{user_name} 加入"
+      nil
+    end
+
+    register('quit_message') do |msg_map, params|
+      quit_message = QuitMessage.json_create(msg_map)
+      user_name = quit_message.user_name
+      broadcast SystemMessage.new "成员 #{user_name} 已退出"
+      nil
+    end
   end
 
   def process(line, client)
     return nil if line.nil? || line == ''
-    raw_massage_map = JSON.parse(line)
-    response_messages = process_message raw_massage_map, client
+    msg_map = JSON.parse(line)
+    response_messages = process_message msg_map, client
     return nil if response_messages.nil?
     to_json(response_messages) unless response_messages.nil?
   end
 
-  def process_message(raw_massage_map, client = nil)
-    case raw_massage_map['type']
-      when 'text_message'
-        text_message = TextMessage.json_create(raw_massage_map)
-        @mutex.synchronize {
-          text_message.version = get_new_version
-          @text_messages << text_message
-        }
-      when 'query_message'
-        query_message = QueryMessage.json_create(raw_massage_map)
-        return get_text_messages(query_message.version)
-      when 'join_message'
-        join_message = JoinMessage.json_create(raw_massage_map)
-        user_id = join_message.user_id
-        user_name = join_message.user_name
-        user_service = get_instance(UserService)
-        user_service.add client, user_id, user_name
-        system_message = SystemMessage.new "欢迎新成员 #{user_name} 加入"
-        broadcast system_message
-      when 'quit_message'
-        quit_message = QuitMessage.json_create(raw_massage_map)
-        user_name = quit_message.user_name
-        system_message = SystemMessage.new "成员 #{user_name} 已退出"
-        broadcast system_message
-      else
-        # type code here
-    end
-    nil
+  def process_message(msg_map, client = nil)
+    @message_handler_service.process(msg_map, :client=>client)
   end
 
   private
@@ -80,5 +87,9 @@ class ChatRoomService
 
   def get_new_version
     @text_messages.size + @version_offset
+  end
+
+  def register(msg_type, &handler)
+    @message_handler_service.register msg_type, &handler
   end
 end

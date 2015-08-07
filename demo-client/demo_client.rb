@@ -42,9 +42,7 @@ class DemoClient
     }
 
     Thread.new {
-      loop {
-        get_messages
-      }
+      get_messages
     }
 
     char_thread.join
@@ -80,15 +78,21 @@ class DemoClient
   end
 
   def get_messages
-    while (line = @s.gets("\n"))
-      next if line.nil?
-      line = line.chomp
-      next if line == ''
-      text_message = TextMessage.json_create(JSON.parse(line))
-      puts "[#{text_message.sender}: #{text_message.content}]"
-      if text_message.use_version?
-        @current_version = text_message.version + 1
+    begin
+      while (line = @s.gets("\n"))
+        next if line.nil?
+        line = line.chomp.gsub /\n|\r/, ''
+        next if line == ''
+        text_message = TextMessage.json_create(JSON.parse(line))
+        puts "[#{text_message.sender}: #{text_message.content}]"
+        if text_message.use_version?
+          @current_version = text_message.version + 1
+        end
       end
+    rescue Exception => e
+      puts 'get_messages raise exception:'
+      puts e.message
+      puts e.backtrace.inspect
     end
   end
 
