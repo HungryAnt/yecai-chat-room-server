@@ -1,9 +1,20 @@
 # coding: UTF-8
 
-require_relative 'text_message'
+class SystemMessage
+  attr_accessor :content
 
-class SystemMessage < TextMessage
   def initialize(content)
-    super '系统', content
+    @content = content
+  end
+
+  def to_json(*a)
+    {
+        type: 'system_message',
+        data: {content: @content}
+    }.to_json(*a)
+  end
+
+  def self.json_create(map)
+    new(map['data']['content'])
   end
 end

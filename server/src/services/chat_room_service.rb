@@ -16,20 +16,11 @@ class ChatRoomService
   end
 
   def init_message_handler
-    register('text_message') do |msg_map, params|
-      text_message = TextMessage.json_create(msg_map)
-      # @mutex.synchronize {
-      #   text_message.version = get_new_version
-      #   @text_messages << text_message
-      # }
-      broadcast text_message
+    register('chat_message') do |msg_map, params|
+      chat_msg = ChatMessage.json_create(msg_map)
+      broadcast chat_msg
       nil
     end
-
-    # register('query_message') do |msg_map, params|
-    #   query_message = QueryMessage.json_create(msg_map)
-    #   get_text_messages(query_message.version)
-    # end
 
     register('join_message') do |msg_map, params|
       join_message = JoinMessage.json_create(msg_map)
