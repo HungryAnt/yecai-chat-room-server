@@ -7,7 +7,7 @@ class MessageHandlerService
     @handler_map[msg_type] = handler
   end
 
-  def process(msg_map, params)
+  def process(msg_map, params={})
     msg_type = msg_map['type']
     puts "process #{msg_type}"
     return if msg_type.nil?

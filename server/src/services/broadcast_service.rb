@@ -12,17 +12,23 @@ class BroadcastService
   end
 
   def add(client)
-    @socket_clients.add client
+    @mutex.synchronize {
+      @socket_clients.add client
+    }
   end
 
   def delete(client)
-    @socket_clients.delete client
+    @mutex.synchronize {
+      @socket_clients.delete client
+    }
   end
 
   def send(message)
     return if @send_proc.nil?
-    @socket_clients.each do |client|
-      @send_proc.call client, message
-    end
+    @mutex.synchronize {
+      @socket_clients.each do |client|
+        @send_proc.call client, message
+      end
+    }
   end
 end
