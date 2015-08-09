@@ -18,7 +18,10 @@ class ChatRoomService
   def init_message_handler
     register('chat_message') do |msg_map, params|
       chat_msg = ChatMessage.json_create(msg_map)
-      broadcast chat_msg
+      user_id = chat_msg.user_id
+      map_id = @user_service.get_map_id user_id
+      puts "get_map_id: #{map_id}"
+      broadcast_in_map map_id, chat_msg unless map_id.nil?
       nil
     end
 
@@ -26,15 +29,19 @@ class ChatRoomService
       join_message = JoinMessage.json_create(msg_map)
       user_id = join_message.user_id
       user_name = join_message.user_name
-      @user_service.add params[:client], user_id, user_name
-      broadcast SystemMessage.new "欢迎新成员 #{user_name} 加入"
+      map_id = join_message.map_id
+      @user_service.join user_id, user_name, map_id, params[:client]
+      broadcast_in_map map_id, SystemMessage.new("欢迎新成员 #{user_name} 加入")
       nil
     end
 
     register('quit_message') do |msg_map, params|
       quit_message = QuitMessage.json_create(msg_map)
+      user_id = quit_message.user_id
       user_name = quit_message.user_name
-      broadcast SystemMessage.new "成员 #{user_name} 已退出"
+      map_id = quit_message.map_id
+      @user_service.quit user_id, map_id
+      broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已退出")
       nil
     end
   end
@@ -53,8 +60,12 @@ class ChatRoomService
 
   private
 
-  def broadcast(message)
-    @broadcast_service.send message.to_json
+  # def broadcast(msg)
+  #   @broadcast_service.send_all msg.to_json
+  # end
+
+  def broadcast_in_map(map_id, msg)
+    @broadcast_service.send map_id, msg.to_json
   end
 
   def get_text_messages(min_version)

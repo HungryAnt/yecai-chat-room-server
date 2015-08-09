@@ -2,6 +2,7 @@ require 'set'
 
 class BroadcastService
   def initialize
+    autowired(UserService)
     @socket_clients = Set.new
     @mutex = Mutex.new
     @send_proc = nil
@@ -23,11 +24,22 @@ class BroadcastService
     }
   end
 
-  def send(message)
+  def send_all(msg)
+    send_to_clients(msg,  @socket_clients)
+  end
+
+  def send(map_id, msg)
+    clients = @user_service.get_clients(map_id)
+    puts "clients size: #{clients.size}"
+    send_to_clients(msg, clients)
+  end
+
+  private
+  def send_to_clients(msg, clients)
     return if @send_proc.nil?
     @mutex.synchronize {
-      @socket_clients.each do |client|
-        @send_proc.call client, message
+      clients.each do |client|
+        @send_proc.call client, msg
       end
     }
   end
