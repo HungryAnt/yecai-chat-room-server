@@ -44,6 +44,14 @@ class ChatRoomService
       broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已退出")
       nil
     end
+
+    register('role_message') do |msg_map, params|
+      role_msg = RoleMessage.json_create(msg_map)
+      user_id = role_msg.user_id
+      map_id = @user_service.get_map_id user_id
+      @user_service.update_role user_id, role_msg.role_map, role_msg.area_id
+      broadcast_in_map map_id, role_msg
+    end
   end
 
   def process(line, client)

@@ -10,7 +10,7 @@ class UserService
       user_dict = @map_user_dict[map_id] || {}
       @map_user_dict[map_id] = user_dict
       return if user_dict.include? user_id
-      user = User.new(user_id, user_name, map_id, client)
+      user = User.new(user_id, user_name, map_id, nil, nil, client)
       user_dict[user_id] = @all_user_dict[user_id] = user
     }
   end
@@ -37,5 +37,11 @@ class UserService
       return nil unless @all_user_dict.include? user_id
       return @all_user_dict[user_id].map_id
     }
+  end
+
+  def update_role(user_id, role_map, area_id)
+    user = @all_user_dict[user_id]
+    user.area_id = area_id
+    user.role_map = role_map unless user.nil?
   end
 end
