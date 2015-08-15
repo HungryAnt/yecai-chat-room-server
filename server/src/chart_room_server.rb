@@ -11,6 +11,7 @@ require 'messages/system_message'
 require 'messages/join_message'
 require 'messages/quit_message'
 require 'messages/role_message'
+require 'messages/roles_query_message'
 require 'models/user'
 require 'services/message_handler_service'
 require 'services/chat_room_service'
@@ -28,7 +29,7 @@ class ChartRoomServer
     server = TCPServer.open(2000)
     loop {
       Thread.start(server.accept) do |client|
-        @broadcast_service.add client
+        @chat_room_service.add_client client
         begin
           accept client
         rescue Exception => e
@@ -36,7 +37,7 @@ class ChartRoomServer
           puts e.message
           puts e.backtrace.inspect
         end
-        @broadcast_service.delete client
+        @chat_room_service.delete_client client
       end
     }
   end
@@ -44,9 +45,9 @@ class ChartRoomServer
   private
 
   def init_broadcast
-    @broadcast_service.init_send_proc do |client, message|
+    @broadcast_service.init_send_proc do |client, msg_text|
       begin
-        client.puts message
+        client.puts msg_text
       rescue Exception => e
         puts 'broadcast send message raise exception:'
         puts e.message

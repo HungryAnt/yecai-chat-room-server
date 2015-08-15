@@ -43,4 +43,22 @@ class UserService
     user = @all_user_dict[user_id]
     user.role_map = role_map unless user.nil?
   end
+
+  def get_users(map_id)
+    @mutex.synchronize {
+      user_dict = @map_user_dict[map_id]
+      return [] if user_dict.nil?
+      users = []
+      user_dict.each_value do |user|
+        users << user unless user.role_map.nil?
+      end
+      return users
+    }
+  end
+
+  def get_user_by_client(client)
+    @mutex.synchronize {
+      return @all_user_dict.values.find {|user| user.client == client}
+    }
+  end
 end

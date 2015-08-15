@@ -24,28 +24,25 @@ class BroadcastService
     }
   end
 
-  def send_all(msg)
+  def send_all(msg_text)
     @mutex.synchronize {
-      send_to_clients(msg,  @socket_clients)
+      send_to_clients(msg_text,  @socket_clients)
     }
   end
 
-  def send(map_id, msg)
+  def send(map_id, msg_text)
     @mutex.synchronize {
       clients = @user_service.get_clients(map_id)
       puts "clients size: #{clients.size}"
-      send_to_clients(msg, clients)
+      send_to_clients(msg_text, clients)
     }
   end
 
   private
-  def send_to_clients(msg, clients)
+  def send_to_clients(msg_text, clients)
     return if @send_proc.nil?
-    error_clients = []
     clients.each do |client|
-      result = @send_proc.call client, msg
-      error_clients << client if result
+      @send_proc.call client, msg_text
     end
-    @socket_clients -= error_clients
   end
 end

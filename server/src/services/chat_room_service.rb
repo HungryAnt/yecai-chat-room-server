@@ -41,6 +41,7 @@ class ChatRoomService
       user_name = quit_message.user_name
       map_id = quit_message.map_id
       @user_service.quit user_id, map_id
+      broadcast_in_map map_id, quit_message
       broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已退出")
       nil
     end
@@ -53,6 +54,34 @@ class ChatRoomService
       broadcast_in_map map_id, role_msg
       nil
     end
+
+    register('roles_query_message') do |msg_map, params|
+      roles_query_msg = RolesQueryMessage.json_create(msg_map)
+      map_id = roles_query_msg.map_id
+      users = @user_service.get_users(map_id)
+      role_msgs = []
+      users.each do |user|
+        role_msg = RoleMessage.new(user.user_id, user.user_name, user.role_map)
+        role_msgs << role_msg
+      end
+      role_msgs
+    end
+  end
+
+  def add_client(client)
+    @broadcast_service.add client
+  end
+
+  def delete_client(client)
+    @broadcast_service.delete client
+    user = @user_service.get_user_by_client client
+    @user_service.quit(user.user_id, user.map_id) unless user.nil?
+
+    quit_msg = QuitMessage.new(user.user_id, user.user_name, user.map_id)
+    @broadcast_service.send(user.map_id, quit_msg.to_json)
+
+    sys_msg = SystemMessage.new("成员 #{user.user_name} 已退出")
+    @broadcast_service.send(user.map_id, sys_msg.to_json)
   end
 
   def process(line, client)
