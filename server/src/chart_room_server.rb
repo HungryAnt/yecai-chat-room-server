@@ -12,20 +12,24 @@ require 'messages/join_message'
 require 'messages/quit_message'
 require 'messages/role_message'
 require 'messages/roles_query_message'
+require 'messages/area_item_message'
 
 require 'models/user'
 require 'models/area'
+require 'models/food'
 
 require 'services/message_handler_service'
 require 'services/chat_room_service'
 require 'services/broadcast_service'
 require 'services/user_service'
 require 'services/map_service'
+require 'services/area_items_service'
 
 
 class ChartRoomServer
   def initialize
-    autowired(ChatRoomService, BroadcastService, UserService, MapService)
+    autowired(ChatRoomService, BroadcastService, UserService,
+              MapService, AreaItemsService)
   end
 
   def init

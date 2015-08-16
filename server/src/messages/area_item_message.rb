@@ -1,4 +1,9 @@
 class AreaItemMessage
+  class Action
+    CREATE = 'create'
+    DELETE = 'delete'
+  end
+
   attr_reader :area_id, :item_map, :action
 
   def initialize(area_id, item_map, action)

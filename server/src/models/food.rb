@@ -16,4 +16,10 @@ class Food
         food_type_id: @food_type_id
     }
   end
+
+  def to_id_map
+    {
+        id: @id
+    }
+  end
 end

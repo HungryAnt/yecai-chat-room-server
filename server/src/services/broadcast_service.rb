@@ -33,7 +33,7 @@ class BroadcastService
   def send(map_id, msg_text)
     @mutex.synchronize {
       clients = @user_service.get_clients(map_id)
-      puts "clients size: #{clients.size}"
+      # puts "clients size: #{clients.size}"
       send_to_clients(msg_text, clients)
     }
   end
