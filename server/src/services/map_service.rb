@@ -23,9 +23,11 @@ class MapService
   def get_map_area_ids(map_id)
     area_ids = []
     get_all_areas.each do |area|
-      area.map_id == map_id
-      area_ids << area.id
+      if area.map_id == map_id
+        area_ids << area.id
+      end
     end
+    area_ids
   end
 end
 

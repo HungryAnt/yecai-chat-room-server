@@ -8,7 +8,7 @@ class ChatRoomService
   attr_reader :text_messages
 
   def initialize
-    autowired(UserService, BroadcastService, MessageHandlerService)
+    autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -65,6 +65,19 @@ class ChatRoomService
         role_msgs << role_msg
       end
       role_msgs
+    end
+
+    register('area_items_query_message') do |msg_map, params|
+      area_items_query_msg = AreaItemsQueryMessage.json_create(msg_map)
+      map_id = area_items_query_msg.map_id
+      area_items_dict = @area_items_service.get_area_items_by_map_id map_id
+      area_items_msgs = []
+      area_items_dict.each_pair do |area_id, items|
+        items.each do |item|
+          area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
+        end
+      end
+      area_items_msgs
     end
   end
 

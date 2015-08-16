@@ -15,6 +15,17 @@ class AreaItemsService
     init_item_generate_thread
   end
 
+  def get_area_items_by_map_id(map_id)
+    area_ids = @map_service.get_map_area_ids(map_id)
+    area_items = {}
+    @mutex.synchronize {
+      area_ids.each do |area_id|
+        area_items[area_id] = @areas_items_disc[area_id]
+      end
+    }
+    area_items
+  end
+
   private
 
   def init_area_items
@@ -45,12 +56,14 @@ class AreaItemsService
       end
 
       @all_areas.each do |area|
-        row, col = area.random_available_location
-        x, y = get_position(row, col)
-        food_type_id = rand(FOOD_TYPE_COUNT)
-        id = SecureRandom.uuid
-        food = Food.new(id, food_type_id, x, y)
-        add_item(area.map_id, area.id, food)
+        if rand(5) == 0  # 1/5概率出现food
+          row, col = area.random_available_location
+          x, y = get_position(row, col)
+          food_type_id = rand(FOOD_TYPE_COUNT)
+          id = SecureRandom.uuid
+          food = Food.new(id, food_type_id, x, y)
+          add_item(area.map_id, area.id, food)
+        end
       end
 
       sleep(5)
@@ -74,17 +87,6 @@ class AreaItemsService
   #     items.reject! {|item| item.id == area_id}
   #   }
   # end
-
-  def get_map_items(map_id)
-    area_ids = @map_service.get_map_area_ids(map_id)
-    items = []
-    @mutex.synchronize {
-      area_ids.each do |area_id|
-        items += @areas_items_disc[area_id]
-      end
-    }
-    items
-  end
 
   def delete_time_out_items(area)
     current_time_in_s = Time.now.to_i
