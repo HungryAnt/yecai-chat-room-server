@@ -26,6 +26,20 @@ class AreaItemsService
     area_items
   end
 
+  def try_pickup(area_id, item_id)
+    target_item = nil
+    @mutex.synchronize {
+      items = @areas_items_disc[area_id]
+      target_item = items.find {|item| item.id == item_id}
+      items.delete target_item unless target_item.nil?
+    }
+    unless target_item.nil?
+      area = @map_service.get_area(area_id)
+      notify_item_deleted(area, target_item)
+    end
+    target_item
+  end
+
   private
 
   def init_area_items
@@ -61,7 +75,7 @@ class AreaItemsService
           x, y = get_position(row, col)
           food_type_id = rand(FOOD_TYPE_COUNT)
           id = SecureRandom.uuid
-          food = Food.new(id, food_type_id, x, y)
+          food = Food.new(id, food_type_id, x, y, 50)
           add_item(area.map_id, area.id, food)
         end
       end

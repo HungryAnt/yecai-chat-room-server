@@ -79,6 +79,18 @@ class ChatRoomService
       end
       area_items_msgs
     end
+
+    register('try_pickup_item_message') do |msg_map, params|
+      area_item_msg = TryPickupItemMessage.json_create(msg_map)
+      area_id = area_item_msg.area_id
+      item_id = area_item_msg.item_id
+      target_item = @area_items_service.try_pickup area_id, item_id
+      if target_item.nil?
+        nil
+      else
+        [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
+      end
+    end
   end
 
   def add_client(client)
