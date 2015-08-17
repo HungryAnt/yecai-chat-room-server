@@ -41,7 +41,12 @@ class AreaItemsService
   end
 
   def discard(area_id, item)
-
+    @mutex.synchronize {
+      items = @areas_items_disc[area_id]
+      items << item
+    }
+    area = @map_service.get_area(area_id)
+    notify_item_created area, item
   end
 
   private
@@ -80,7 +85,7 @@ class AreaItemsService
           food_type_id = rand(FOOD_TYPE_COUNT)
           id = SecureRandom.uuid
           food = Food.new(id, food_type_id, x, y, 50)
-          add_item(area.map_id, area.id, food)
+          add_item(area, food)
         end
       end
 
@@ -88,15 +93,19 @@ class AreaItemsService
     }
   end
 
-  def add_item(map_id, area_id, item)
-    items = @areas_items_disc[area_id]
+  def add_item(area, item)
+    items = @areas_items_disc[area.id]
     @mutex.synchronize {
       items << item
     }
 
+    notify_item_created area, item
+  end
+
+  def notify_item_created(area, item)
     item_map = item.to_map
-    area_item_msg = AreaItemMessage.new(area_id, item_map, AreaItemMessage::Action::CREATE)
-    @broadcast_service.send map_id, area_item_msg.to_json
+    area_item_msg = AreaItemMessage.new(area.id, item_map, AreaItemMessage::Action::CREATE)
+    @broadcast_service.send area.map_id, area_item_msg.to_json
   end
 
   # def delete_item(area_id)

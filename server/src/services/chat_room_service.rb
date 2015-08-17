@@ -101,6 +101,7 @@ class ChatRoomService
       @area_items_service.discard area_id, item
       nil
     end
+
   end
 
   def add_client(client)
