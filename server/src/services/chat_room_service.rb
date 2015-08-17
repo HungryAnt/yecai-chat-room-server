@@ -91,6 +91,16 @@ class ChatRoomService
         [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
       end
     end
+
+    register('discard_item_message') do |msg_map, params|
+      discard_item_msg = DiscardItemMessage.json_create(msg_map)
+      area_id = discard_item_msg.area_id
+      item_map = discard_item_msg.item_map
+
+      item = ItemFactory.create_item item_map
+      @area_items_service.discard area_id, item
+      nil
+    end
   end
 
   def add_client(client)

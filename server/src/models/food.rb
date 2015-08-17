@@ -24,4 +24,10 @@ class Food
         id: @id
     }
   end
+
+  def self.from_map(item_map)
+    new(item_map['id'], item_map['food_type_id'].to_i,
+        item_map['x'].to_i, item_map['y, energy'].to_i,
+        item_map['energy'].to_f)
+  end
 end

@@ -20,6 +20,7 @@ require 'models/user'
 require 'models/area'
 require 'models/food'
 
+require 'services/item_factory'
 require 'services/message_handler_service'
 require 'services/chat_room_service'
 require 'services/broadcast_service'

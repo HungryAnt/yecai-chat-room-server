@@ -40,6 +40,10 @@ class AreaItemsService
     target_item
   end
 
+  def discard(area_id, item)
+
+  end
+
   private
 
   def init_area_items
