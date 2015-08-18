@@ -61,4 +61,10 @@ class UserService
       return @all_user_dict.values.find {|user| user.client == client}
     }
   end
+
+  def get_user(user_id)
+    @mutex.synchronize {
+      return @all_user_dict[user_id]
+    }
+  end
 end

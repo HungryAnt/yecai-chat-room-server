@@ -51,6 +51,8 @@ class ChatRoomService
       user_id = role_msg.user_id
       map_id = @user_service.get_map_id user_id
       @user_service.update_role user_id, role_msg.role_map
+
+      role_msg.role_map['food_type_id'] = @user_service.get_user(user_id).food_type_id # todo refactor
       broadcast_in_map map_id, role_msg
       nil
     end
@@ -61,7 +63,7 @@ class ChatRoomService
       users = @user_service.get_users(map_id)
       role_msgs = []
       users.each do |user|
-        role_msg = RoleMessage.new(user.user_id, user.user_name, user.role_map)
+        role_msg = RoleMessage.new(user.user_id, user.user_name, user.get_role_map)
         role_msgs << role_msg
       end
       role_msgs
@@ -102,6 +104,25 @@ class ChatRoomService
       nil
     end
 
+    register('eating_food_message') do |msg_map, params|
+      eating_food_msg = EatingFoodMessage.json_create(msg_map)
+      user_id = eating_food_msg.user_id
+      user = @user_service.get_user(user_id)
+      user.eating(eating_food_msg.food_map['food_type_id'])
+      map_id = @user_service.get_map_id user_id
+      broadcast_in_map map_id, eating_food_msg
+      nil
+    end
+
+    register('eat_up_food_message') do |msg_map, params|
+      eat_up_food_msg = EatUpFoodMessage.json_create msg_map
+      user_id = eat_up_food_msg.user_id
+      user = @user_service.get_user(user_id)
+      user.eat_up
+      map_id = @user_service.get_map_id user_id
+      broadcast_in_map map_id, eat_up_food_msg
+      nil
+    end
   end
 
   def add_client(client)
