@@ -2,6 +2,7 @@
 $:.unshift(File.dirname(__FILE__))
 
 require 'socket'
+require 'mysql'
 require 'json'
 require 'engine/dependency_injection'
 require 'messages/query_message'
@@ -23,6 +24,8 @@ require 'models/user'
 require 'models/area'
 require 'models/food'
 
+require 'dao/user_data_dao'
+
 require 'services/item_factory'
 require 'services/message_handler_service'
 require 'services/chat_room_service'
@@ -30,6 +33,7 @@ require 'services/broadcast_service'
 require 'services/user_service'
 require 'services/map_service'
 require 'services/area_items_service'
+require 'services/user_data_service'
 
 
 class ChartRoomServer
