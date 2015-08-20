@@ -8,7 +8,8 @@ class ChatRoomService
   attr_reader :text_messages
 
   def initialize
-    autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService)
+    autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService,
+              UserDataDao)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -16,6 +17,16 @@ class ChatRoomService
   end
 
   def init_message_handler
+    register('init_sync_user_message') do |msg_map, params|
+      init_sync_user_msg = InitSyncUserMessage.json_create(msg_map)
+      user_id = init_sync_user_msg.user_id
+      user_name = init_sync_user_msg.user_name
+      @user_data_dao.sync_user user_id, user_name
+      lv, exp = @user_data_dao.get_user_lv user_id
+      lv_msg = LvMessage.new(user_id, lv, exp)
+      [lv_msg]
+    end
+
     register('chat_message') do |msg_map, params|
       chat_msg = ChatMessage.json_create(msg_map)
       user_id = chat_msg.user_id
