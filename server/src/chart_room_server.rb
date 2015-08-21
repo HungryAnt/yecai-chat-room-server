@@ -84,10 +84,10 @@ class ChartRoomServer
       next if line.nil?
       line = line.chomp
       line.gsub! /\n|\r/, ''
-      puts line
+      # puts line
       begin
         result = @chat_room_service.process line, client
-        puts result
+        # puts result
         client.puts(result) unless result.nil?
       rescue Exception => e
         puts e.message
