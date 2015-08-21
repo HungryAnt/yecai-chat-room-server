@@ -40,9 +40,10 @@ class ChatRoomService
       join_message = JoinMessage.json_create(msg_map)
       user_id = join_message.user_id
       user_name = join_message.user_name
+      lv = join_message.lv
       map_id = join_message.map_id
       @user_service.join user_id, user_name, map_id, params[:client]
-      broadcast_in_map map_id, SystemMessage.new("欢迎新成员 #{user_name} 加入")
+      broadcast_in_map map_id, SystemMessage.new("欢迎新成员 #{user_name} (Lv.#{lv}) 加入")
       nil
     end
 
@@ -53,7 +54,7 @@ class ChatRoomService
       map_id = quit_message.map_id
       @user_service.quit user_id, map_id
       broadcast_in_map map_id, quit_message
-      broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已退出")
+      broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已离开")
       nil
     end
 
