@@ -10,6 +10,7 @@ require 'config/database_config'
 
 require 'messages/init_sync_user_message'
 require 'messages/lv_message'
+require 'messages/update_lv_message'
 require 'messages/query_message'
 require 'messages/text_message'
 require 'messages/chat_message'
