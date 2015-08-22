@@ -9,7 +9,7 @@ class ChatRoomService
 
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService,
-              UserDataDao)
+              UserDataDao, CommandService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -17,6 +17,12 @@ class ChatRoomService
   end
 
   def init_message_handler
+    register('command_message') do |msg_map, params|
+      cmd_msg = CommandMessage.from_map(msg_map)
+      @command_service.process cmd_msg
+      nil
+    end
+
     register('init_sync_user_message') do |msg_map, params|
       init_sync_user_msg = InitSyncUserMessage.json_create(msg_map)
       user_id = init_sync_user_msg.user_id

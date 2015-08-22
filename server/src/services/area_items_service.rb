@@ -49,6 +49,22 @@ class AreaItemsService
     notify_item_created area, item
   end
 
+  def cmd_rand_food(area_id, x, y)
+    area = @map_service.get_area(area_id)
+    food = generate_random_food(x, y)
+    add_item(area, food)
+  end
+
+  def cmd_rand_many_food(area_id, count)
+    area = @map_service.get_area(area_id)
+    0.upto(count - 1) do
+      row, col = area.random_available_location
+      x, y = get_position(row, col)
+      food = generate_random_food(x, y)
+      add_item(area, food)
+    end
+  end
+
   private
 
   def init_area_items
@@ -82,15 +98,19 @@ class AreaItemsService
         if rand(5) == 0  # 1/5概率出现food
           row, col = area.random_available_location
           x, y = get_position(row, col)
-          food_type_id = rand(FOOD_TYPE_COUNT)
-          id = SecureRandom.uuid
-          food = Food.new(id, food_type_id, x, y, 50)
+          food = generate_random_food(x, y)
           add_item(area, food)
         end
       end
 
       sleep(5)
     }
+  end
+
+  def generate_random_food(x, y)
+    food_type_id = rand(FOOD_TYPE_COUNT)
+    id = SecureRandom.uuid
+    Food.new(id, food_type_id, x, y, 50)
   end
 
   def add_item(area, item)

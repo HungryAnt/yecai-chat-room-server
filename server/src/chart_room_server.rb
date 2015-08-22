@@ -25,6 +25,7 @@ require 'messages/try_pickup_item_message'
 require 'messages/discard_item_message'
 require 'messages/eating_food_message'
 require 'messages/eat_up_food_message'
+require 'messages/command_message'
 
 require 'models/user'
 require 'models/area'
@@ -41,6 +42,7 @@ require 'services/user_service'
 require 'services/map_service'
 require 'services/area_items_service'
 require 'services/user_data_service'
+require 'services/command_service'
 
 
 class ChartRoomServer
