@@ -17,4 +17,5 @@ require 'services/broadcast_service'
 require 'services/user_service'
 
 require 'config/database_config'
+require 'dao/db_connection_pool'
 require 'dao/user_data_dao'

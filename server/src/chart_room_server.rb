@@ -30,6 +30,7 @@ require 'models/user'
 require 'models/area'
 require 'models/food'
 
+require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
 
 require 'services/item_factory'

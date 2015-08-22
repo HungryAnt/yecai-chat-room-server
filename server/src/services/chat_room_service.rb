@@ -166,20 +166,19 @@ class ChatRoomService
 
   def process(line, client)
     return nil if line.nil? || line == ''
-
-    msg_map = nil
-
     begin
       msg_map = JSON.parse(line)
+      response_messages = process_message msg_map, client
+      if response_messages.nil?
+        return nil
+      else
+        return to_json(response_messages)
+      end
     rescue Exception => e
       puts "line #{line}"
       puts e.message
       puts e.backtrace.inspect
     end
-
-    response_messages = process_message msg_map, client
-    return nil if response_messages.nil?
-    to_json(response_messages) unless response_messages.nil?
   end
 
   def process_message(msg_map, client = nil)
