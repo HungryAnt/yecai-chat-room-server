@@ -31,7 +31,7 @@ class ChatRoomService
       update_lv_msg = UpdateLvMessage.json_create msg_map
       user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
       current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
-      if lv >= 1 && lv <= 200 && exp >= 0 && lv - current_lv < 3
+      if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
         puts "update_user_lv #{user_id}, #{lv}, #{exp}"
         @user_data_dao.update_user_lv user_id, lv, exp
       end
