@@ -51,7 +51,7 @@ class ChartRoomServer
 
   def init
     init_broadcast
-    server = TCPServer.open(2000)
+    server = TCPServer.open(2001)
     loop {
       Thread.start(server.accept) do |client|
         @chat_room_service.add_client client
