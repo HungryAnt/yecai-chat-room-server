@@ -178,6 +178,7 @@ class ChatRoomService
       puts "line #{line}"
       puts e.message
       puts e.backtrace.inspect
+      return nil
     end
   end
 
