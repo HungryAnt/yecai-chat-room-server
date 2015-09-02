@@ -5,6 +5,7 @@ require 'socket'
 require 'mysql'
 require 'json'
 require 'engine/dependency_injection'
+require 'utils/des'
 
 require 'config/database_config'
 
@@ -43,12 +44,13 @@ require 'services/map_service'
 require 'services/area_items_service'
 require 'services/user_data_service'
 require 'services/command_service'
+require 'services/encryption_service'
 
 
 class ChartRoomServer
   def initialize
     autowired(ChatRoomService, BroadcastService, UserService,
-              MapService, AreaItemsService)
+              MapService, AreaItemsService, EncryptionService)
   end
 
   def init
@@ -74,7 +76,8 @@ class ChartRoomServer
   def init_broadcast
     @broadcast_service.init_send_proc do |client, msg_text|
       begin
-        client.puts msg_text
+        des = @encryption_service.get_des(client)
+        puts_data(client, msg_text, des)
       rescue Exception => e
         puts 'broadcast send message raise exception:'
         puts e.message
@@ -84,15 +87,17 @@ class ChartRoomServer
   end
 
   def accept(client)
+    des = @encryption_service.new_client_des client
+    client.puts(des.password + "\n")
     while (line = client.readline)
       next if line.nil?
       line = line.chomp
       line.gsub! /\n|\r/, ''
-      # puts line
+      line = des.decrypt line
+      puts line
       begin
         result = @chat_room_service.process line, client
-        # puts result
-        client.puts(result) unless result.nil?
+        puts_data(client, result, des) unless result.nil?
       rescue Exception => e
         puts e.message
         puts e.backtrace.inspect
@@ -103,6 +108,9 @@ class ChartRoomServer
     client.close
   end
 
+  def puts_data(client, data, des)
+    client.puts(des.encrypt(data) + "\n") unless des.nil?
+  end
 end
 
 server = ChartRoomServer.new
