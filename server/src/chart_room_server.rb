@@ -27,6 +27,8 @@ require 'messages/discard_item_message'
 require 'messages/eating_food_message'
 require 'messages/eat_up_food_message'
 require 'messages/command_message'
+require 'messages/hit_message'
+require 'messages/being_battered_message'
 
 require 'models/user'
 require 'models/area'

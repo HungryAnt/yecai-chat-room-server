@@ -146,7 +146,7 @@ class ChatRoomService
       user_id = eating_food_msg.user_id
       user = @user_service.get_user(user_id)
       user.eating(eating_food_msg.food_map['food_type_id'])
-      map_id = @user_service.get_map_id user_id
+      map_id = user.map_id
       broadcast_in_map map_id, eating_food_msg
       nil
     end
@@ -156,12 +156,24 @@ class ChatRoomService
       user_id = eat_up_food_msg.user_id
       user = @user_service.get_user(user_id)
       user.eat_up
-      map_id = @user_service.get_map_id user_id
+      map_id = user.map_id
       broadcast_in_map map_id, eat_up_food_msg
       nil
     end
 
-    register('hit_message')
+    register('hit_message') do |msg_map, params|
+      hit_msg = HitMessage.from_map msg_map
+      map_id = @user_service.get_map_id hit_msg.user_id
+      broadcast_in_map map_id, hit_msg
+      nil
+    end
+
+    register('being_battered_message') do |msg_map, params|
+      being_battered_msg = BeingBatteredMessage.from_map msg_map
+      map_id = @user_service.get_map_id being_battered_msg.user_id
+      broadcast_in_map map_id, being_battered_msg
+      nil
+    end
   end
 
   def add_client(client)
