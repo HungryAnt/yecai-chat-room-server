@@ -90,25 +90,33 @@ class ChatRoomService
       roles_query_msg = RolesQueryMessage.json_create(msg_map)
       map_id = roles_query_msg.map_id
       users = @user_service.get_users(map_id)
-      role_msgs = []
-      users.each do |user|
-        role_msg = RoleMessage.new(user.user_id, user.user_name, user.get_role_map)
-        role_msgs << role_msg
+      if users.length > 0
+        role_msgs = []
+        users.each do |user|
+          role_msg = RoleMessage.new(user.user_id, user.user_name, user.get_role_map)
+          role_msgs << role_msg
+        end
+         role_msgs
+      else
+        nil
       end
-      role_msgs
     end
 
     register('area_items_query_message') do |msg_map, params|
       area_items_query_msg = AreaItemsQueryMessage.json_create(msg_map)
       map_id = area_items_query_msg.map_id
       area_items_dict = @area_items_service.get_area_items_by_map_id map_id
-      area_items_msgs = []
-      area_items_dict.each_pair do |area_id, items|
-        items.each do |item|
-          area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
+      if area_items_dict.size > 0
+        area_items_msgs = []
+        area_items_dict.each_pair do |area_id, items|
+          items.each do |item|
+            area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
+          end
         end
+        area_items_msgs
+      else
+        nil
       end
-      area_items_msgs
     end
 
     register('try_pickup_item_message') do |msg_map, params|
@@ -178,7 +186,7 @@ class ChatRoomService
       if response_messages.nil?
         return nil
       else
-        return to_json(response_messages)
+        return to_json_list(response_messages)
       end
     rescue Exception => e
       puts "line #{line}"
@@ -218,8 +226,8 @@ class ChatRoomService
     text_messages
   end
 
-  def to_json(text_messages)
-    (text_messages.map { |m| m.to_json }).join("\n")
+  def to_json_list(text_messages)
+    text_messages.map { |m| m.to_json }
   end
 
   def get_new_version

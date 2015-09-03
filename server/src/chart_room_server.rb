@@ -55,7 +55,7 @@ class ChartRoomServer
 
   def init
     init_broadcast
-    server = TCPServer.open(2001)
+    server = TCPServer.open(2002)
     loop {
       Thread.start(server.accept) do |client|
         @chat_room_service.add_client client
@@ -96,8 +96,11 @@ class ChartRoomServer
       line = des.decrypt line
       puts line
       begin
-        result = @chat_room_service.process line, client
-        puts_data(client, result, des) unless result.nil?
+        response_messages = @chat_room_service.process line, client
+        next if response_messages.nil? || response_messages.length == 0
+        response_messages.each do |msg|
+          puts_data(client, msg, des)
+        end
       rescue Exception => e
         puts e.message
         puts e.backtrace.inspect
