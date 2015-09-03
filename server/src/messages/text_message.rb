@@ -23,7 +23,7 @@ class TextMessage
     }.to_json(*a)
   end
 
-  def self.json_create(map)
+  def self.from_map(map)
     new(map['data']['sender'],
         map['data']['content'],
         map['data']['version'].to_i)

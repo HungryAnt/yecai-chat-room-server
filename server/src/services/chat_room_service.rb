@@ -24,7 +24,7 @@ class ChatRoomService
     end
 
     register('init_sync_user_message') do |msg_map, params|
-      init_sync_user_msg = InitSyncUserMessage.json_create(msg_map)
+      init_sync_user_msg = InitSyncUserMessage.from_map(msg_map)
       user_id = init_sync_user_msg.user_id
       user_name = init_sync_user_msg.user_name
       @user_data_dao.sync_user user_id, user_name
@@ -34,7 +34,7 @@ class ChatRoomService
     end
 
     register('update_lv_message') do |msg_map, params|
-      update_lv_msg = UpdateLvMessage.json_create msg_map
+      update_lv_msg = UpdateLvMessage.from_map msg_map
       user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
       current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
       if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
@@ -45,7 +45,7 @@ class ChatRoomService
     end
 
     register('chat_message') do |msg_map, params|
-      chat_msg = ChatMessage.json_create(msg_map)
+      chat_msg = ChatMessage.from_map(msg_map)
       user_id = chat_msg.user_id
       map_id = @user_service.get_map_id user_id
       puts "get_map_id: #{map_id}"
@@ -54,7 +54,7 @@ class ChatRoomService
     end
 
     register('join_message') do |msg_map, params|
-      join_message = JoinMessage.json_create(msg_map)
+      join_message = JoinMessage.from_map(msg_map)
       user_id = join_message.user_id
       user_name = join_message.user_name
       lv = join_message.lv
@@ -65,7 +65,7 @@ class ChatRoomService
     end
 
     register('quit_message') do |msg_map, params|
-      quit_message = QuitMessage.json_create(msg_map)
+      quit_message = QuitMessage.from_map(msg_map)
       user_id = quit_message.user_id
       user_name = quit_message.user_name
       map_id = quit_message.map_id
@@ -76,7 +76,7 @@ class ChatRoomService
     end
 
     register('role_message') do |msg_map, params|
-      role_msg = RoleMessage.json_create(msg_map)
+      role_msg = RoleMessage.from_map(msg_map)
       user_id = role_msg.user_id
       map_id = @user_service.get_map_id user_id
       @user_service.update_role user_id, role_msg.role_map
@@ -87,7 +87,7 @@ class ChatRoomService
     end
 
     register('roles_query_message') do |msg_map, params|
-      roles_query_msg = RolesQueryMessage.json_create(msg_map)
+      roles_query_msg = RolesQueryMessage.from_map(msg_map)
       map_id = roles_query_msg.map_id
       users = @user_service.get_users(map_id)
       if users.length > 0
@@ -103,7 +103,7 @@ class ChatRoomService
     end
 
     register('area_items_query_message') do |msg_map, params|
-      area_items_query_msg = AreaItemsQueryMessage.json_create(msg_map)
+      area_items_query_msg = AreaItemsQueryMessage.from_map(msg_map)
       map_id = area_items_query_msg.map_id
       area_items_dict = @area_items_service.get_area_items_by_map_id map_id
       if area_items_dict.size > 0
@@ -120,7 +120,7 @@ class ChatRoomService
     end
 
     register('try_pickup_item_message') do |msg_map, params|
-      area_item_msg = TryPickupItemMessage.json_create(msg_map)
+      area_item_msg = TryPickupItemMessage.from_map(msg_map)
       area_id = area_item_msg.area_id
       item_id = area_item_msg.item_id
       target_item = @area_items_service.try_pickup area_id, item_id
@@ -132,7 +132,7 @@ class ChatRoomService
     end
 
     register('discard_item_message') do |msg_map, params|
-      discard_item_msg = DiscardItemMessage.json_create(msg_map)
+      discard_item_msg = DiscardItemMessage.from_map(msg_map)
       area_id = discard_item_msg.area_id
       item_map = discard_item_msg.item_map
 
@@ -142,7 +142,7 @@ class ChatRoomService
     end
 
     register('eating_food_message') do |msg_map, params|
-      eating_food_msg = EatingFoodMessage.json_create(msg_map)
+      eating_food_msg = EatingFoodMessage.from_map(msg_map)
       user_id = eating_food_msg.user_id
       user = @user_service.get_user(user_id)
       user.eating(eating_food_msg.food_map['food_type_id'])
@@ -152,7 +152,7 @@ class ChatRoomService
     end
 
     register('eat_up_food_message') do |msg_map, params|
-      eat_up_food_msg = EatUpFoodMessage.json_create msg_map
+      eat_up_food_msg = EatUpFoodMessage.from_map msg_map
       user_id = eat_up_food_msg.user_id
       user = @user_service.get_user(user_id)
       user.eat_up
@@ -160,6 +160,8 @@ class ChatRoomService
       broadcast_in_map map_id, eat_up_food_msg
       nil
     end
+
+    register('hit_message')
   end
 
   def add_client(client)

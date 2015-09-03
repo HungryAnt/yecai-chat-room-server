@@ -100,7 +100,7 @@ class DemoClient
   private
   def init_message_handler
     register('text_message') do |msg_map, params|
-      text_message = TextMessage.json_create(msg_map)
+      text_message = TextMessage.from_map(msg_map)
       puts "[#{text_message.sender}: #{text_message.content}]"
       if text_message.use_version?
         @current_version = text_message.version + 1

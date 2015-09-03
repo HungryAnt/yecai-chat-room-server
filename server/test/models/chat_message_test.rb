@@ -20,7 +20,7 @@ class ChatMessageTest < MiniTest::Test
     json_str = chat_msg1.to_json
     assert_equal('{"type":"chat_message","data":{"user_id":"user_id","user_name":"ant","content":"hello world"}}', json_str)
 
-    chat_msg2 = ChatMessage.json_create(JSON.parse(json_str))
+    chat_msg2 = ChatMessage.from_map(JSON.parse(json_str))
     assert_equal('user_id', chat_msg2.user_id)
     assert_equal('ant', chat_msg2.user_name)
     assert_equal('hello world', chat_msg2.content)
