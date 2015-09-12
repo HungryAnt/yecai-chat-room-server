@@ -43,4 +43,13 @@ class UserDataDao
     get_my.prepare('update v1_users set lv = ?, exp = ? where user_id = ?')
         .execute(lv, exp, user_id)
   end
+
+  def get_users_where_lv_greater_than(filter_lv)
+    user_ids = []
+    get_my.prepare('select user_id, lv from v1_users where lv >= ?').execute(filter_lv).each do |user_id, lv|
+      puts "user_id: #{user_id}, lv: #{lv}"
+      user_ids << user_id
+    end
+    user_ids
+  end
 end
