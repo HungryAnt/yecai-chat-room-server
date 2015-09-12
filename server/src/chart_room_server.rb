@@ -10,7 +10,7 @@ require 'utils/des'
 require 'config/database_config'
 
 require 'messages/init_sync_user_message'
-require 'messages/lv_message'
+require 'messages/res_sync_user_message'
 require 'messages/update_lv_message'
 require 'messages/query_message'
 require 'messages/text_message'
@@ -36,6 +36,7 @@ require 'models/food'
 
 require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
+require 'dao/user_vehicle_dao'
 
 require 'services/item_factory'
 require 'services/message_handler_service'

@@ -9,7 +9,7 @@ class ChatRoomService
 
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService,
-              UserDataDao, CommandService)
+              UserDataDao, CommandService, UserVehicleDao)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -29,8 +29,9 @@ class ChatRoomService
       user_name = init_sync_user_msg.user_name
       @user_data_dao.sync_user user_id, user_name
       lv, exp = @user_data_dao.get_user_lv user_id
-      lv_msg = LvMessage.new(user_id, lv, exp)
-      [lv_msg]
+      vehicles = @user_vehicle_dao.get_vehicles user_id
+      res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles)
+      [res_sync_user_msg]
     end
 
     register('update_lv_message') do |msg_map, params|
