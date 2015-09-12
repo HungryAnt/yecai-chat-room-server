@@ -97,7 +97,7 @@ class ChartRoomServer
       line = line.chomp
       line.gsub! /\n|\r/, ''
       line = des.decrypt line
-      puts line
+      # puts line
       begin
         response_messages = @chat_room_service.process line, client
         next if response_messages.nil? || response_messages.length == 0
