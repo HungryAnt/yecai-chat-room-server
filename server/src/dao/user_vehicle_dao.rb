@@ -29,4 +29,13 @@ class UserVehicleDao
     stmt = get_my.prepare('insert into v1_user_vehicles (user_id, vehicle) values (?, ?)')
     stmt.execute user_id, vehicle
   end
+
+  def xxx
+    my = get_my
+    stmt1 = my.prepare('select * from v1_user_vehicles where user_id = ? and vehicle = ?')
+    stmt2 = my.prepare('select * from v1_user_vehicles where user_id = ?')
+
+    stmt2.execute 'xx'
+    stmt1.execute 'xx', 'xx'
+  end
 end

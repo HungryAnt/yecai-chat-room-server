@@ -184,13 +184,15 @@ class ChatRoomService
   def delete_client(client)
     @broadcast_service.delete client
     user = @user_service.get_user_by_client client
-    @user_service.quit(user.user_id, user.map_id) unless user.nil?
+    unless user.nil?
+      @user_service.quit(user.user_id, user.map_id) unless user.nil?
 
-    quit_msg = QuitMessage.new(user.user_id, user.user_name, user.map_id)
-    @broadcast_service.send(user.map_id, quit_msg.to_json)
+      quit_msg = QuitMessage.new(user.user_id, user.user_name, user.map_id)
+      @broadcast_service.send(user.map_id, quit_msg.to_json)
 
-    sys_msg = SystemMessage.new("成员 #{user.user_name} 已退出")
-    @broadcast_service.send(user.map_id, sys_msg.to_json)
+      sys_msg = SystemMessage.new("成员 #{user.user_name} 已退出")
+      @broadcast_service.send(user.map_id, sys_msg.to_json)
+    end
   end
 
   def process(line, client)

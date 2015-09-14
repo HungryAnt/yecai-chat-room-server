@@ -54,6 +54,8 @@ class ChartRoomServer
   def initialize
     autowired(ChatRoomService, BroadcastService, UserService,
               MapService, AreaItemsService, EncryptionService)
+    @mutex = Mutex.new
+    @thread_count = 0
   end
 
   def init
@@ -61,16 +63,26 @@ class ChartRoomServer
     server = TCPServer.open(2002)
     loop {
       Thread.start(server.accept) do |client|
-        @chat_room_service.add_client client
+        @mutex.synchronize {@thread_count += 1}
         begin
-          accept client
+          @chat_room_service.add_client client
+          begin
+            accept client
+          rescue Exception => e
+            puts 'accept client raise exception:'
+            puts e.message
+            puts e.backtrace.inspect
+          end
+          client.close
+          @chat_room_service.delete_client client
         rescue Exception => e
-          puts 'accept client raise exception:'
+          puts 'Thread.start proc raise exception:'
           puts e.message
           puts e.backtrace.inspect
         end
-        @chat_room_service.delete_client client
+        @mutex.synchronize {@thread_count -= 1}
       end
+      puts "thread count: #{@thread_count}"
     }
   end
 

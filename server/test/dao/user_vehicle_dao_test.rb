@@ -36,4 +36,8 @@ class UserVehicleDaoTest < MiniTest::Test
     assert_equal VEHICLE, vehicles[0]
     assert_equal VEHICLE, vehicles[1]
   end
+
+  def test_xxx
+    @user_vehicle_dao.xxx
+  end
 end
