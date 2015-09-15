@@ -82,8 +82,11 @@ class ChatRoomService
       map_id = @user_service.get_map_id user_id
       @user_service.update_role user_id, role_msg.role_map
 
-      role_msg.role_map['food_type_id'] = @user_service.get_user(user_id).food_type_id # todo refactor
-      broadcast_in_map map_id, role_msg
+      user = @user_service.get_user(user_id)
+      unless user.nil?
+        role_msg.role_map['food_type_id'] = user.food_type_id # todo refactor
+        broadcast_in_map map_id, role_msg
+      end
       nil
     end
 
@@ -146,9 +149,11 @@ class ChatRoomService
       eating_food_msg = EatingFoodMessage.from_map(msg_map)
       user_id = eating_food_msg.user_id
       user = @user_service.get_user(user_id)
-      user.eating(eating_food_msg.food_map['food_type_id'])
-      map_id = user.map_id
-      broadcast_in_map map_id, eating_food_msg
+      unless user.nil?
+        user.eating(eating_food_msg.food_map['food_type_id'])
+        map_id = user.map_id
+        broadcast_in_map map_id, eating_food_msg
+      end
       nil
     end
 
@@ -156,9 +161,11 @@ class ChatRoomService
       eat_up_food_msg = EatUpFoodMessage.from_map msg_map
       user_id = eat_up_food_msg.user_id
       user = @user_service.get_user(user_id)
-      user.eat_up
-      map_id = user.map_id
-      broadcast_in_map map_id, eat_up_food_msg
+      unless user.nil?
+        user.eat_up
+        map_id = user.map_id
+        broadcast_in_map map_id, eat_up_food_msg
+      end
       nil
     end
 

@@ -63,7 +63,10 @@ class ChartRoomServer
     server = TCPServer.open(2002)
     loop {
       Thread.start(server.accept) do |client|
-        @mutex.synchronize {@thread_count += 1}
+        @mutex.synchronize {
+          @thread_count += 1
+          puts "thread count: #{@thread_count}"
+        }
         begin
           @chat_room_service.add_client client
           begin
@@ -73,16 +76,18 @@ class ChartRoomServer
             puts e.message
             puts e.backtrace.inspect
           end
-          client.close
           @chat_room_service.delete_client client
+          client.close
         rescue Exception => e
           puts 'Thread.start proc raise exception:'
           puts e.message
           puts e.backtrace.inspect
         end
-        @mutex.synchronize {@thread_count -= 1}
+        @mutex.synchronize {
+          @thread_count -= 1
+          puts "thread count: #{@thread_count}"
+        }
       end
-      puts "thread count: #{@thread_count}"
     }
   end
 
@@ -119,11 +124,11 @@ class ChartRoomServer
       rescue Exception => e
         puts e.message
         puts e.backtrace.inspect
+        return
       end
     end
       # client.puts(Time.now.ctime) # 发送时间到客户端
       # client.puts "Closing the connection. Bye!"
-    client.close
   end
 
   def puts_data(client, data, des)

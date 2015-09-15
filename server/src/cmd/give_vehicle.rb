@@ -20,7 +20,7 @@ def give_vehicle
   # user_data_dao = UserDataDao.new
   # user_ids = user_data_dao.get_users_where_lv_greater_than 25
 
-  user_ids = ['8a25ee62-74e8-473b-9365-78511784a342']
+  user_ids = ['2b3faaa6-3dbb-4fba-92a1-b1d4b21f368f']
 
   user_ids.each do |user_id|
     vehicle = all_vehicles[rand(all_vehicles.length)]
