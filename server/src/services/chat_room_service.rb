@@ -190,6 +190,9 @@ class ChatRoomService
 
   def delete_client(client)
     @broadcast_service.delete client
+  end
+
+  def user_quit(client)
     user = @user_service.get_user_by_client client
     unless user.nil?
       @user_service.quit(user.user_id, user.map_id) unless user.nil?

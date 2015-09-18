@@ -6,6 +6,7 @@ class UserService
   end
 
   def join(user_id, user_name, map_id, client)
+    puts "join user_id: #{user_id}"
     @mutex.synchronize {
       user_dict = @map_user_dict[map_id] || {}
       @map_user_dict[map_id] = user_dict
@@ -16,6 +17,7 @@ class UserService
   end
 
   def quit(user_id, map_id)
+    puts "quit user_id: #{user_id}"
     @mutex.synchronize {
       user_dict = @map_user_dict[map_id]
       return if user_dict.nil?

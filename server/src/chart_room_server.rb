@@ -77,6 +77,7 @@ class ChartRoomServer
             puts e.backtrace.inspect
           end
           @chat_room_service.delete_client client
+          @chat_room_service.user_quit client
           client.close
         rescue Exception => e
           puts 'Thread.start proc raise exception:'
@@ -102,6 +103,7 @@ class ChartRoomServer
         puts 'broadcast send message raise exception:'
         puts e.message
         puts e.backtrace.inspect
+        @chat_room_service.delete_client client
       end
     end
   end
