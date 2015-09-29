@@ -5,6 +5,7 @@ class AreaItemsService
   GRID_WIDTH = 10
   GRID_HEIGHT = 10
   FOOD_TYPE_COUNT = 38
+  RUBBISH_TYPE_COUNT = 12
   TIME_OUT = 60 # 60s超时，物品消失
 
   def initialize
@@ -41,6 +42,7 @@ class AreaItemsService
   end
 
   def discard(area_id, item)
+    return unless item.instance_of? Food
     @mutex.synchronize {
       items = @areas_items_disc[area_id]
       items << item
@@ -96,10 +98,14 @@ class AreaItemsService
 
       @all_areas.each do |area|
         if rand(5) == 0  # 1/5概率出现food
-          row, col = area.random_available_location
-          x, y = get_position(row, col)
+          x, y = get_random_position(area)
           food = generate_random_food(x, y)
           add_item(area, food)
+        end
+        if rand(5) == 0
+          x, y = get_random_position(area)
+          rubbish = generate_random_rubbish(x, y)
+          add_item(area, rubbish)
         end
       end
 
@@ -111,6 +117,12 @@ class AreaItemsService
     food_type_id = rand(FOOD_TYPE_COUNT)
     id = SecureRandom.uuid
     Food.new(id, food_type_id, x, y, 50)
+  end
+
+  def generate_random_rubbish(x, y)
+    rubbish_type_id = rand(RUBBISH_TYPE_COUNT)
+    id = SecureRandom.uuid
+    Rubbish.new(id, rubbish_type_id, x, y)
   end
 
   def add_item(area, item)
@@ -157,6 +169,11 @@ class AreaItemsService
     item_map = item.to_id_map
     area_item_msg = AreaItemMessage.new(area.id, item_map, AreaItemMessage::Action::DELETE)
     @broadcast_service.send area.map_id, area_item_msg.to_json
+  end
+
+  def get_random_position(area)
+    row, col = area.random_available_location
+    get_position(row, col)
   end
 
   def get_position(row, col)

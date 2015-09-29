@@ -15,7 +15,7 @@ class EncryptionService
   end
 
   def delete_client_des(client)
-    @client_des_map[client]
+    @client_des_map.delete client
   end
 
   private

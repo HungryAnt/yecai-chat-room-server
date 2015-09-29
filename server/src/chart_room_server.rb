@@ -32,7 +32,9 @@ require 'messages/being_battered_message'
 
 require 'models/user'
 require 'models/area'
+require 'models/item'
 require 'models/food'
+require 'models/rubbish'
 
 require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
@@ -63,19 +65,13 @@ class ChartRoomServer
     server = TCPServer.open(2002)
     loop {
       Thread.start(server.accept) do |client|
-        @mutex.synchronize {
-          @thread_count += 1
-          puts "thread count: #{@thread_count}"
-        }
         begin
+          @mutex.synchronize {
+            @thread_count += 1
+            puts "thread count: #{@thread_count}"
+          }
           @chat_room_service.add_client client
-          begin
-            accept client
-          rescue Exception => e
-            puts 'accept client raise exception:'
-            puts e.message
-            puts e.backtrace.inspect
-          end
+          accept client
           @chat_room_service.delete_client client
           @chat_room_service.user_quit client
           client.close
@@ -83,11 +79,12 @@ class ChartRoomServer
           puts 'Thread.start proc raise exception:'
           puts e.message
           puts e.backtrace.inspect
+        ensure
+          @mutex.synchronize {
+            @thread_count -= 1
+            puts "thread count: #{@thread_count}"
+          }
         end
-        @mutex.synchronize {
-          @thread_count -= 1
-          puts "thread count: #{@thread_count}"
-        }
       end
     }
   end
@@ -109,28 +106,34 @@ class ChartRoomServer
   end
 
   def accept(client)
-    des = @encryption_service.new_client_des client
-    client.puts(des.password + "\n")
-    while (line = client.readline)
-      next if line.nil?
-      line = line.chomp
-      line.gsub! /\n|\r/, ''
-      line = des.decrypt line
-      # puts line
-      begin
-        response_messages = @chat_room_service.process line, client
-        next if response_messages.nil? || response_messages.length == 0
-        response_messages.each do |msg|
-          puts_data(client, msg, des)
+    begin
+      des = @encryption_service.new_client_des client
+      client.puts(des.password + "\n")
+      while (line = client.readline)
+        next if line.nil?
+        line = line.chomp
+        line.gsub! /\n|\r/, ''
+        line = des.decrypt line
+        # puts line
+        begin
+          response_messages = @chat_room_service.process line, client
+          next if response_messages.nil? || response_messages.length == 0
+          response_messages.each do |msg|
+            puts_data(client, msg, des)
+          end
+        rescue Exception => e
+          puts e.message
+          puts e.backtrace.inspect
+          return
         end
-      rescue Exception => e
-        puts e.message
-        puts e.backtrace.inspect
-        return
       end
+    rescue Exception => e
+      puts 'accept client raise exception:'
+      puts e.message
+      puts e.backtrace.inspect
+    ensure
+      @encryption_service.delete_client_des client
     end
-      # client.puts(Time.now.ctime) # 发送时间到客户端
-      # client.puts "Closing the connection. Bye!"
   end
 
   def puts_data(client, data, des)

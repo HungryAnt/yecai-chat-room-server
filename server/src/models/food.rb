@@ -1,27 +1,20 @@
-class Food
-  attr_reader :id, :time_in_s
+class Food < Item
+  ITEM_TYPE = 'food'
 
   def initialize(id, food_type_id, x, y, energy)
-    @id, @food_type_id = id, food_type_id
-    @x, @y = x, y
+    super(id, x, y)
+    @food_type_id = food_type_id
     @energy = energy
-    @time_in_s = Time.now.to_i
   end
 
   def to_map
     {
         id: @id,
-        item_type: 'food',
+        item_type: ITEM_TYPE,
         x: @x,
         y: @y,
         food_type_id: @food_type_id,
         energy: @energy
-    }
-  end
-
-  def to_id_map
-    {
-        id: @id
     }
   end
 
