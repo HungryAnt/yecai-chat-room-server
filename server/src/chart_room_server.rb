@@ -30,6 +30,7 @@ require 'messages/command_message'
 require 'messages/hit_message'
 require 'messages/being_battered_message'
 require 'messages/collecting_rubbish_message'
+require 'messages/map_user_count_message'
 
 require 'models/user'
 require 'models/area'
@@ -53,6 +54,7 @@ require 'services/user_data_service'
 require 'services/user_rubbish_service'
 require 'services/command_service'
 require 'services/encryption_service'
+require 'services/map_user_count_service'
 
 
 class ChartRoomServer
@@ -73,10 +75,7 @@ class ChartRoomServer
             @thread_count += 1
             puts "thread count: #{@thread_count}"
           }
-          @chat_room_service.add_client client
           accept client
-          @chat_room_service.delete_client client
-          @chat_room_service.user_quit client
           client.close
         rescue Exception => e
           puts 'Thread.start proc raise exception:'
@@ -110,6 +109,7 @@ class ChartRoomServer
     begin
       des = @encryption_service.new_client_des client
       client.puts(des.password + "\n")
+      @chat_room_service.add_client client
       while (line = client.readline)
         next if line.nil?
         line = line.chomp
@@ -132,6 +132,8 @@ class ChartRoomServer
       puts e.backtrace.inspect
     ensure
       @encryption_service.delete_client_des client
+      @chat_room_service.delete_client client
+      @chat_room_service.user_quit client
     end
   end
 

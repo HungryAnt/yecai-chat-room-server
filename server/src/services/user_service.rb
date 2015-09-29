@@ -69,4 +69,22 @@ class UserService
       return @all_user_dict[user_id]
     }
   end
+
+  # def get_user_count_by_map_id(map_id)
+  #   @mutex.synchronize {
+  #     user_dict = @map_user_dict[map_id]
+  #     return 0 if user_dict.nil?
+  #     return user_dict.size
+  #   }
+  # end
+
+  def get_map_user_count_dict
+    map_user_count_dict = {}
+    @mutex.synchronize {
+      @map_user_dict.each_pair do |map_id, user_dict|
+        map_user_count_dict[map_id] = user_dict.size
+      end
+    }
+    map_user_count_dict
+  end
 end
