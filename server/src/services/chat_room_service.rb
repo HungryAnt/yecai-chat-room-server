@@ -9,7 +9,7 @@ class ChatRoomService
 
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService,
-              UserDataDao, CommandService, UserVehicleDao)
+              UserDataDao, CommandService, UserVehicleDao, UserRubbishService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -131,6 +131,9 @@ class ChatRoomService
       if target_item.nil?
         nil
       else
+        if target_item.instance_of? Rubbish
+          @user_rubbish_service.add_rubbish area_item_msg.user_id, target_item.rubbish_type_id
+        end
         [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
       end
     end
