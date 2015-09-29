@@ -29,6 +29,7 @@ require 'messages/eat_up_food_message'
 require 'messages/command_message'
 require 'messages/hit_message'
 require 'messages/being_battered_message'
+require 'messages/collecting_rubbish_message'
 
 require 'models/user'
 require 'models/area'
@@ -77,7 +78,6 @@ class ChartRoomServer
           client.close
         rescue Exception => e
           puts 'Thread.start proc raise exception:'
-          puts e.message
           puts e.backtrace.inspect
         ensure
           @mutex.synchronize {
@@ -98,7 +98,6 @@ class ChartRoomServer
         puts_data(client, msg_text, des)
       rescue Exception => e
         puts 'broadcast send message raise exception:'
-        puts e.message
         puts e.backtrace.inspect
         @chat_room_service.delete_client client
       end
@@ -122,14 +121,12 @@ class ChartRoomServer
             puts_data(client, msg, des)
           end
         rescue Exception => e
-          puts e.message
           puts e.backtrace.inspect
           return
         end
       end
     rescue Exception => e
       puts 'accept client raise exception:'
-      puts e.message
       puts e.backtrace.inspect
     ensure
       @encryption_service.delete_client_des client

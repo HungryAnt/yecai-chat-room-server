@@ -182,6 +182,13 @@ class ChatRoomService
       broadcast_in_map map_id, being_battered_msg
       nil
     end
+
+    register('collecting_rubbish_message') do |msg_map, params|
+      collecting_rubbish_msg = CollectingRubbishMessage.from_map msg_map
+      map_id = @user_service.get_map_id collecting_rubbish_msg.user_id
+      broadcast_in_map map_id, collecting_rubbish_msg
+      nil
+    end
   end
 
   def add_client(client)
@@ -217,7 +224,6 @@ class ChatRoomService
       end
     rescue Exception => e
       puts "line #{line}"
-      puts e.message
       puts e.backtrace.inspect
       return nil
     end

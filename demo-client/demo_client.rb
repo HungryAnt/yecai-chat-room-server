@@ -92,7 +92,6 @@ class DemoClient
       end
     rescue Exception => e
       puts 'get_messages raise exception:'
-      puts e.message
       puts e.backtrace.inspect
     end
   end

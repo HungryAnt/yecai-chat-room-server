@@ -14,7 +14,7 @@ class DbConnectionPool
     begin
       conn.query('select 1')
     rescue Exception => e
-      puts "DbConnectionPool get_conn: #{e.message}"
+      puts 'DbConnectionPool get_conn:'
       puts e.backtrace.inspect
       conn = mysql_connect
       @pool[num] = conn
