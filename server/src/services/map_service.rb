@@ -1,11 +1,6 @@
 class MapService
   def initialize
     @area_dict = {}
-    init_areas
-  end
-
-  def init_areas
-
   end
 
   def add_area(area)

@@ -197,10 +197,12 @@ class ChatRoomService
   end
 
   def add_client(client)
+    @map_user_count_service.inc_user_count
     @broadcast_service.add client
   end
 
   def delete_client(client)
+    @map_user_count_service.dec_user_count
     @broadcast_service.delete client
   end
 
