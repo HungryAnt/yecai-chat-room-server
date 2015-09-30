@@ -81,7 +81,10 @@ class AreaItemsService
       sleep(1)
 
       begin
-        process_items_loop
+        loop {
+          process_items_generation
+          sleep(5)
+        }
       rescue Exception => e
         puts 'get_messages raise exception:'
         puts e.backtrace.inspect
@@ -89,27 +92,23 @@ class AreaItemsService
     }
   end
 
-  def process_items_loop
-    loop {
-      @all_areas.each do |area|
-        delete_time_out_items(area)
-      end
+  def process_items_generation
+    @all_areas.each do |area|
+      delete_time_out_items(area)
+    end
 
-      @all_areas.each do |area|
-        if rand(5) == 0  # 1/5概率出现food
-          x, y = get_random_position(area)
-          food = generate_random_food(x, y)
-          add_item(area, food)
-        end
-        if rand(5) == 0
-          x, y = get_random_position(area)
-          rubbish = generate_random_rubbish(x, y)
-          add_item(area, rubbish)
-        end
+    @all_areas.each do |area|
+      if rand(5) == 0  # 1/5概率出现food
+        x, y = get_random_position(area)
+        food = generate_random_food(x, y)
+        add_item(area, food)
       end
-
-      sleep(5)
-    }
+      if rand(5) == 0
+        x, y = get_random_position(area)
+        rubbish = generate_random_rubbish(x, y)
+        add_item(area, rubbish)
+      end
+    end
   end
 
   def generate_random_food(x, y)

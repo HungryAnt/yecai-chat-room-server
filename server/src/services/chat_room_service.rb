@@ -8,8 +8,9 @@ class ChatRoomService
   attr_reader :text_messages
 
   def initialize
-    autowired(UserService, BroadcastService, MessageHandlerService, AreaItemsService,
-              UserDataDao, CommandService, UserVehicleDao, UserRubbishService)
+    autowired(UserService, BroadcastService, MessageHandlerService,
+              AreaItemsService, MapUserCountService,
+              UserDataDao, CommandService, UserVehicleDao, UserRubbishService,)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
