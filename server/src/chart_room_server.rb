@@ -67,7 +67,7 @@ class ChartRoomServer
 
   def init
     init_broadcast
-    server = TCPServer.open(2002)
+    server = TCPServer.open(2003)
     loop {
       Thread.start(server.accept) do |client|
         begin
