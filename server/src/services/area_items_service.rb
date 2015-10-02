@@ -98,12 +98,12 @@ class AreaItemsService
     end
 
     @all_areas.each do |area|
-      if rand(5) == 0  # 1/5概率出现food
+      if rand(4) == 0  # 1/4概率出现food
         x, y = get_random_position(area)
         food = generate_random_food(x, y)
         add_item(area, food)
       end
-      if rand(5) == 0
+      if rand(13) == 0
         x, y = get_random_position(area)
         rubbish = generate_random_rubbish(x, y)
         add_item(area, rubbish)
