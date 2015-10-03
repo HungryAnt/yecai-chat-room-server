@@ -66,7 +66,6 @@ class ChartRoomServer
   end
 
   def init
-    init_broadcast
     server = TCPServer.open(2003)
     loop {
       Thread.start(server.accept) do |client|
@@ -92,19 +91,6 @@ class ChartRoomServer
 
   private
 
-  def init_broadcast
-    @broadcast_service.init_send_proc do |client, msg_text|
-      begin
-        des = @encryption_service.get_des(client)
-        puts_data(client, msg_text, des)
-      rescue Exception => e
-        puts 'broadcast send message raise exception:'
-        puts e.backtrace.inspect
-        @broadcast_service.delete client
-      end
-    end
-  end
-
   def accept(client)
     begin
       des = @encryption_service.new_client_des client
@@ -120,7 +106,7 @@ class ChartRoomServer
           response_messages = @chat_room_service.process line, client
           next if response_messages.nil? || response_messages.length == 0
           response_messages.each do |msg|
-            puts_data(client, msg, des)
+            @encryption_service.puts_data(client, msg)
           end
         rescue Exception => e
           puts e.backtrace.inspect
@@ -135,10 +121,6 @@ class ChartRoomServer
       @chat_room_service.delete_client client
       @chat_room_service.user_quit client
     end
-  end
-
-  def puts_data(client, data, des)
-    client.puts(des.encrypt(data) + "\n") unless des.nil?
   end
 end
 

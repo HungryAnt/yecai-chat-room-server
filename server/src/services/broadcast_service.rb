@@ -2,14 +2,9 @@ require 'set'
 
 class BroadcastService
   def initialize
-    autowired(UserService)
+    autowired(UserService, EncryptionService)
     @socket_clients = Set.new
     @mutex = Mutex.new
-    @send_proc = nil
-  end
-
-  def init_send_proc(&send_proc)
-    @send_proc = send_proc
   end
 
   def add(client)
@@ -40,9 +35,18 @@ class BroadcastService
 
   private
   def send_to_clients(msg_text, clients)
-    return if @send_proc.nil?
     clients.each do |client|
-      @send_proc.call client, msg_text
+      send_data client, msg_text
+    end
+  end
+
+  def send_data(client, msg_text)
+    begin
+      @encryption_service.puts_data(client, msg_text)
+    rescue Exception => e
+      puts "broadcast send message raise exception: #{e.message}"
+      puts e.backtrace.inspect
+      @socket_clients.delete client
     end
   end
 end

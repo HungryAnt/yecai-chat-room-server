@@ -18,6 +18,11 @@ class EncryptionService
     @client_des_map.delete client
   end
 
+  def puts_data(client, data)
+    des = get_des client
+    client.puts(des.encrypt(data) + "\n") unless des.nil?
+  end
+
   private
 
   def gen_random_password

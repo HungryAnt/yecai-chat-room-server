@@ -209,7 +209,7 @@ class ChatRoomService
   def user_quit(client)
     user = @user_service.get_user_by_client client
     unless user.nil?
-      @user_service.quit(user.user_id, user.map_id) unless user.nil?
+      @user_service.quit(user.user_id, user.map_id)
 
       quit_msg = QuitMessage.new(user.user_id, user.user_name, user.map_id)
       @broadcast_service.send(user.map_id, quit_msg.to_json)
