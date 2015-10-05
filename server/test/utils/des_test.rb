@@ -9,4 +9,11 @@ class DesTest < MiniTest::Test
     puts encrypted_data
     assert_equal text, des.decrypt(encrypted_data)
   end
+
+  # def test_many_des
+  #   des_list = []
+  #   0.upto(1000) do
+  #     des_list << Des.new('xxe1212ecew')
+  #   end
+  # end
 end
