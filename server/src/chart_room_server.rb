@@ -99,8 +99,8 @@ class ChartRoomServer
   def accept(client)
     begin
       des = @encryption_service.new_client_des client
-      LogUtil.info "client puts password:#{des.password}"
       client.puts(des.password + "\n")
+      LogUtil.info 'accept @chat_room_service.add_client'
       @chat_room_service.add_client client
       LogUtil.info "password:#{des.password} start readline loop"
       while (line = client.readline)
