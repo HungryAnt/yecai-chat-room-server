@@ -9,6 +9,7 @@ class BroadcastService
 
   def add(client)
     @mutex.synchronize {
+      LogUtil.info 'BroadcastService add'
       @socket_clients.add client
     }
   end

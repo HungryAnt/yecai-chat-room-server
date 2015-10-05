@@ -197,8 +197,11 @@ class ChatRoomService
   end
 
   def add_client(client)
+    LogUtil.info 'add_client inc_user_count'
     @map_user_count_service.inc_user_count
+    LogUtil.info 'add_client broadcast_service.add'
     @broadcast_service.add client
+    LogUtil.info 'add_client done'
   end
 
   def delete_client(client)
