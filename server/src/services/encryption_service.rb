@@ -1,21 +1,28 @@
 class EncryptionService
   def initialize
+    @mutex = Mutex.new
     @client_des_map = {}
   end
 
   def new_client_des(client)
     password = gen_random_password
     des = Des.new password
-    @client_des_map[client] = des
+    @mutex.synchronize {
+      @client_des_map[client] = des
+    }
     des
   end
 
   def get_des(client)
-    @client_des_map[client]
+    @mutex.synchronize {
+      return @client_des_map[client]
+    }
   end
 
   def delete_client_des(client)
-    @client_des_map.delete client
+    @mutex.synchronize {
+      @client_des_map.delete client
+    }
   end
 
   def puts_data(client, data)
