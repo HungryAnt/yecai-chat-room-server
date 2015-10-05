@@ -42,7 +42,9 @@ class BroadcastService
 
   def send_data(client, msg_text)
     begin
+      LogUtil.info "begin send: #{msg_text}"
       @encryption_service.puts_data(client, msg_text)
+      LogUtil.info "finish send: #{msg_text}"
     rescue Exception => e
       LogUtil.error "broadcast send message raise exception:"
       LogUtil.error e.backtrace.inspect
