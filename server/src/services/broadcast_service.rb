@@ -44,8 +44,8 @@ class BroadcastService
     begin
       @encryption_service.puts_data(client, msg_text)
     rescue Exception => e
-      puts "broadcast send message raise exception:"
-      puts e.backtrace.inspect
+      LogUtil.error "broadcast send message raise exception:"
+      LogUtil.error e.backtrace.inspect
       @socket_clients.delete client
     end
   end

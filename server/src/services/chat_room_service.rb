@@ -41,7 +41,7 @@ class ChatRoomService
       user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
       current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
       if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
-        puts "update_user_lv #{user_id}, #{lv}, #{exp}"
+        LogUtil.info "update_user_lv #{user_id}, #{lv}, #{exp}"
         @user_data_dao.update_user_lv user_id, lv, exp
       end
       nil
@@ -51,7 +51,7 @@ class ChatRoomService
       chat_msg = ChatMessage.from_map(msg_map)
       user_id = chat_msg.user_id
       map_id = @user_service.get_map_id user_id
-      puts "get_map_id: #{map_id}"
+      LogUtil.info "get_map_id: #{map_id}"
       broadcast_in_map map_id, chat_msg unless map_id.nil?
       nil
     end
@@ -230,8 +230,8 @@ class ChatRoomService
         return to_json_list(response_messages)
       end
     rescue Exception => e
-      puts "line #{line}"
-      puts e.backtrace.inspect
+      LogUtil.error "line #{line}"
+      LogUtil.error e.backtrace.inspect
       return nil
     end
   end

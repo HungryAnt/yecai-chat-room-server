@@ -11,7 +11,7 @@ class DemoClient
   def initialize
     autowired(MessageHandlerService)
     hostname = 'localhost'
-    port = 2000
+    port = 2003
     @s = TCPSocket.open(hostname, port)
     @current_version = 0
     @exit = false

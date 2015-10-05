@@ -22,7 +22,7 @@ class Area
         lines[row][col, 1]
       end
     end
-    puts "area row_count #{@row_count} col_count #{@col_count}"
+    LogUtil.info "area row_count #{@row_count} col_count #{@col_count}"
   end
 
   def init_available_location

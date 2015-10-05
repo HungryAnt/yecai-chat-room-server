@@ -4,8 +4,9 @@ $:.unshift(File.dirname(__FILE__))
 require 'socket'
 require 'mysql'
 require 'json'
-require 'engine/dependency_injection'
 require 'utils/des'
+require 'utils/log_util'
+require 'engine/dependency_injection'
 
 require 'config/database_config'
 
@@ -72,17 +73,17 @@ class ChartRoomServer
         begin
           @mutex.synchronize {
             @thread_count += 1
-            puts "thread count: #{@thread_count}"
+            LogUtil.info "thread count: #{@thread_count}"
           }
           accept client
           client.close
         rescue Exception => e
-          puts 'Thread.start proc raise exception:'
-          puts e.backtrace.inspect
+          LogUtil.error 'Thread.start proc raise exception:'
+          LogUtil.error e.backtrace.inspect
         ensure
           @mutex.synchronize {
             @thread_count -= 1
-            puts "thread count: #{@thread_count}"
+            LogUtil.info "thread count: #{@thread_count}"
           }
         end
       end
@@ -101,7 +102,7 @@ class ChartRoomServer
         line = line.chomp
         line.gsub! /\n|\r/, ''
         line = des.decrypt line
-        # puts line
+        # LogUtil.info line
         begin
           response_messages = @chat_room_service.process line, client
           next if response_messages.nil? || response_messages.length == 0
@@ -109,13 +110,13 @@ class ChartRoomServer
             @encryption_service.puts_data(client, msg)
           end
         rescue Exception => e
-          puts e.backtrace.inspect
+          LogUtil.error e.backtrace.inspect
           return
         end
       end
     rescue Exception => e
-      puts 'accept client raise exception:'
-      puts e.backtrace.inspect
+      LogUtil.error 'accept client raise exception:'
+      LogUtil.error e.backtrace.inspect
     ensure
       @encryption_service.delete_client_des client
       @chat_room_service.delete_client client

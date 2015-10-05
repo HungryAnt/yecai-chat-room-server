@@ -34,10 +34,10 @@ lambda do
   end
 
   search_pattern = File.join(File.dirname(__FILE__), 'area/*.rb')
-  puts search_pattern
+  LogUtil.info search_pattern
 
   Dir.glob(search_pattern).each do |file|
-    puts file
+    LogUtil.info file
     require file
   end
 

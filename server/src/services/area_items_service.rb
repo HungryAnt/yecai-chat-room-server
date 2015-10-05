@@ -67,6 +67,22 @@ class AreaItemsService
     end
   end
 
+  def cmd_rand_rubbish(area_id, x, y)
+    area = @map_service.get_area(area_id)
+    rubbish = generate_random_rubbish(x, y)
+    add_item(area, rubbish)
+  end
+
+  def cmd_rand_many_rubbish(area_id, count)
+    area = @map_service.get_area(area_id)
+    0.upto(count - 1) do
+      row, col = area.random_available_location
+      x, y = get_position(row, col)
+      food = generate_random_rubbish(x, y)
+      add_item(area, food)
+    end
+  end
+
   private
 
   def init_area_items
@@ -80,15 +96,15 @@ class AreaItemsService
     Thread.new {
       sleep(1)
 
-      begin
-        loop {
+      loop {
+        begin
           process_items_generation
-          sleep(5)
-        }
-      rescue Exception => e
-        puts 'get_messages raise exception:'
-        puts e.backtrace.inspect
-      end
+        rescue Exception => e
+          LogUtil.error 'process_items_generation raise exception:'
+          LogUtil.error e.backtrace.inspect
+        end
+        sleep(5)
+      }
     }
   end
 

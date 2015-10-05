@@ -1,4 +1,4 @@
-puts __FILE__
+LogUtil.info __FILE__
 
 henhouse_outside_tiles_text = <<TILES
 ################################################################################

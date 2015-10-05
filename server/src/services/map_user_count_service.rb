@@ -14,8 +14,8 @@ class MapUserCountService
           sync_map_user_count
           sleep(3)
         rescue Exception => e
-          puts 'get_messages raise exception:'
-          puts e.backtrace.inspect
+          LogUtil.error 'get_messages raise exception:'
+          LogUtil.error e.backtrace.inspect
         end
       }
     }

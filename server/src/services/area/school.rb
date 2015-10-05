@@ -1,4 +1,4 @@
-puts __FILE__
+LogUtil.info __FILE__
 
 school_ground_tiles_text = <<TILES
 ################################################################################
