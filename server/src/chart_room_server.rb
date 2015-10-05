@@ -67,9 +67,11 @@ class ChartRoomServer
   end
 
   def init
-    server = TCPServer.open(2003)
-    loop {
-      Thread.start(server.accept) do |client|
+    # server = TCPServer.open(2003)
+    # loop {
+    Socket.tcp_server_loop(2003) do |client, client_addrinfo|
+      # Thread.start(server.accept) do |client|
+      Thread.new {
         begin
           @mutex.synchronize {
             @thread_count += 1
@@ -86,8 +88,10 @@ class ChartRoomServer
             LogUtil.info "thread count: #{@thread_count}"
           }
         end
-      end
-    }
+      }
+      # end
+    # }
+    end
   end
 
   private
@@ -97,6 +101,7 @@ class ChartRoomServer
       des = @encryption_service.new_client_des client
       client.puts(des.password + "\n")
       @chat_room_service.add_client client
+      LogUtil.info "password:#{des.password} start readline loop"
       while (line = client.readline)
         next if line.nil?
         line = line.chomp
@@ -118,9 +123,11 @@ class ChartRoomServer
       LogUtil.error 'accept client raise exception:'
       LogUtil.error e.backtrace.inspect
     ensure
+      LogUtil.info 'accept ensure start'
       @encryption_service.delete_client_des client
       @chat_room_service.delete_client client
       @chat_room_service.user_quit client
+      LogUtil.info 'accept ensure done'
     end
   end
 end
