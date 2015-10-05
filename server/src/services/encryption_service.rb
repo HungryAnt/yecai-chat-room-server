@@ -14,9 +14,7 @@ class EncryptionService
   end
 
   def get_des(client)
-    @mutex.synchronize {
-      return @client_des_map[client]
-    }
+    @client_des_map[client]
   end
 
   def delete_client_des(client)
