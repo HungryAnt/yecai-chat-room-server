@@ -8,6 +8,7 @@ class BroadcastService
   end
 
   def add(client)
+    LogUtil.info "BroadcastService add isLocked: #{@mutex.locked?}"
     @mutex.synchronize {
       LogUtil.info 'BroadcastService add'
       @socket_clients.add client
