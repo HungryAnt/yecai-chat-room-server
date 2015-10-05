@@ -24,6 +24,9 @@ class DbConnectionPool
 
   private
   def mysql_connect
-    Mysql.connect(DatabaseConfig::HOST, 'root', 'ant', 'yecai', 3306)
+    Mysql.connect(DatabaseConfig::HOST, 'root', 'ant', 'yecai', 3306,
+                  Mysql::OPT_CONNECT_TIMEOUT=>1000,
+                  Mysql::OPT_READ_TIMEOUT=>1000,
+                  Mysql::OPT_WRITE_TIMEOUT=>1000)
   end
 end
