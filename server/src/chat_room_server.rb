@@ -58,7 +58,7 @@ require 'services/encryption_service'
 require 'services/map_user_count_service'
 
 
-class ChartRoomServer
+class ChatRoomServer
   def initialize
     autowired(ChatRoomService, BroadcastService, UserService,
               MapService, AreaItemsService, EncryptionService)
@@ -124,14 +124,14 @@ class ChartRoomServer
       LogUtil.error 'accept client raise exception:'
       LogUtil.error e.backtrace.inspect
     ensure
-      LogUtil.info 'accept ensure start'
+      LogUtil.info 'accept_ensure_start'
+      @chat_room_service.user_quit client
       @encryption_service.delete_client_des client
       @chat_room_service.delete_client client
-      @chat_room_service.user_quit client
-      LogUtil.info 'accept ensure done'
+      LogUtil.info 'accept_ensure_done'
     end
   end
 end
 
-server = ChartRoomServer.new
+server = ChatRoomServer.new
 server.init

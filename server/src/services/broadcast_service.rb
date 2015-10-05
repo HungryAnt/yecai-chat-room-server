@@ -16,6 +16,7 @@ class BroadcastService
   end
 
   def delete(client)
+    LogUtil.info "BroadcastService delete isLocked: #{@mutex.locked?}"
     @mutex.synchronize {
       @socket_clients.delete client
     }
