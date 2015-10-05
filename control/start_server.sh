@@ -1,3 +1,3 @@
 #!/bin/sh
-nohup ruby ./chart_room_server.rb > ./log.txt 2>&1 &
+nohup ruby ./chart_room_server.rb > /dev/null 2>&1 &
 
