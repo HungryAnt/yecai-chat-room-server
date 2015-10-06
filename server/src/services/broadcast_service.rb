@@ -1,4 +1,5 @@
 require 'set'
+require 'timeout'
 
 class BroadcastService
   def initialize
@@ -42,7 +43,14 @@ class BroadcastService
   private
   def send_to_clients(msg_text, clients)
     clients.each do |client|
-      send_data client, msg_text
+      begin
+        Timeout.timeout(1) do
+          send_data client, msg_text
+        end
+      rescue Timeout::Error
+        puts 'BroadcastService send_to_clients time out'
+        delete client
+      end
     end
   end
 
@@ -52,7 +60,6 @@ class BroadcastService
     rescue Exception => e
       LogUtil.error "broadcast send message raise exception:"
       LogUtil.error e.backtrace.inspect
-      #@ socket_clients.delete client
       delete client
     end
   end

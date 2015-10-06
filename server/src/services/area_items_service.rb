@@ -6,6 +6,7 @@ class AreaItemsService
   GRID_HEIGHT = 10
   FOOD_TYPE_COUNT = 38
   RUBBISH_TYPE_COUNT = 12
+  NUTRIENT_TYPE_COUNT = 3
   TIME_OUT = 60 # 60s超时，物品消失
 
   def initialize
@@ -124,6 +125,11 @@ class AreaItemsService
         rubbish = generate_random_rubbish(x, y)
         add_item(area, rubbish)
       end
+      # if rand(4) == 0
+      #   x, y = get_random_position(area)
+      #   nutrient = generate_random_nutrient(x, y)
+      #   add_item(area, nutrient)
+      # end
     end
   end
 
@@ -137,6 +143,12 @@ class AreaItemsService
     rubbish_type_id = rand(RUBBISH_TYPE_COUNT)
     id = SecureRandom.uuid
     Rubbish.new(id, rubbish_type_id, x, y)
+  end
+
+  def generate_random_nutrient(x, y)
+    nutrient_type_id = rand(NUTRIENT_TYPE_COUNT)
+    id = SecureRandom.uuid
+    Nutrient.new(id, nutrient_type_id, x, y)
   end
 
   def add_item(area, item)

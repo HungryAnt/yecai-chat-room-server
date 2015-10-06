@@ -38,6 +38,7 @@ require 'models/area'
 require 'models/item'
 require 'models/food'
 require 'models/rubbish'
+require 'models/nutrient'
 
 require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
