@@ -1,6 +1,8 @@
 class Nutrient < Item
   ITEM_TYPE = 'nutrient'
 
+  attr_reader :nutrient_type_id
+
   def initialize(id, nutrient_type_id, x, y)
     super(id, x, y)
     @nutrient_type_id = nutrient_type_id

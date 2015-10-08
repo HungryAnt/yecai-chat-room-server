@@ -31,6 +31,7 @@ require 'messages/command_message'
 require 'messages/hit_message'
 require 'messages/being_battered_message'
 require 'messages/collecting_rubbish_message'
+require 'messages/collecting_nutrient_message'
 require 'messages/map_user_count_message'
 
 require 'models/user'
@@ -44,6 +45,7 @@ require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
 require 'dao/user_vehicle_dao'
 require 'dao/user_rubbish_dao'
+require 'dao/user_nutrient_dao'
 
 require 'services/item_factory'
 require 'services/message_handler_service'
@@ -54,6 +56,7 @@ require 'services/map_service'
 require 'services/area_items_service'
 require 'services/user_data_service'
 require 'services/user_rubbish_service'
+require 'services/user_nutrient_service'
 require 'services/command_service'
 require 'services/encryption_service'
 require 'services/map_user_count_service'
@@ -70,7 +73,7 @@ class ChatRoomServer
   def init
     # server = TCPServer.open(2003)
     # loop {
-    Socket.tcp_server_loop(2003) do |client, client_addrinfo|
+    Socket.tcp_server_loop(2004) do |client, client_addrinfo|
       # Thread.start(server.accept) do |client|
       Thread.new {
         begin

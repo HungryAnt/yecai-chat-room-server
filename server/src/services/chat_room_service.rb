@@ -10,7 +10,8 @@ class ChatRoomService
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService,
               AreaItemsService, MapUserCountService,
-              UserDataDao, CommandService, UserVehicleDao, UserRubbishService,)
+              UserDataDao, CommandService, UserVehicleDao,
+              UserRubbishService, UserNutrientService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -32,7 +33,8 @@ class ChatRoomService
       lv, exp = @user_data_dao.get_user_lv user_id
       vehicles = @user_vehicle_dao.get_vehicles user_id
       rubbishes = @user_rubbish_service.get_rubbishes user_id
-      res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles, rubbishes)
+      nutrients = @user_nutrient_service.get_nutrients user_id
+      res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles, rubbishes, nutrients)
       [res_sync_user_msg]
     end
 
@@ -135,6 +137,8 @@ class ChatRoomService
       else
         if target_item.instance_of? Rubbish
           @user_rubbish_service.add_rubbish area_item_msg.user_id, target_item.rubbish_type_id
+        elsif target_item.instance_of? Nutrient
+          @user_nutrient_service.add_nutrient area_item_msg.user_id, target_item.nutrient_type_id
         end
         [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
       end
@@ -192,6 +196,13 @@ class ChatRoomService
       collecting_rubbish_msg = CollectingRubbishMessage.from_map msg_map
       map_id = @user_service.get_map_id collecting_rubbish_msg.user_id
       broadcast_in_map map_id, collecting_rubbish_msg
+      nil
+    end
+
+    register('collecting_nutrient_message') do |msg_map, params|
+      collecting_nutrient_msg = CollectingNutrientMessage.from_map msg_map
+      map_id = @user_service.get_map_id collecting_nutrient_msg.user_id
+      broadcast_in_map map_id, collecting_nutrient_msg
       nil
     end
   end

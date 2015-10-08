@@ -1,4 +1,4 @@
-class CollectingRubbishMessage
+class CollectingNutrientMessage
   attr_reader :user_id, :nutrient_map
 
   def initialize(user_id, nutrient_map)

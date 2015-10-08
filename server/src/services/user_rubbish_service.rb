@@ -1,6 +1,4 @@
 class UserRubbishService
-
-
   def initialize
     autowired(UserRubbishDao)
   end
