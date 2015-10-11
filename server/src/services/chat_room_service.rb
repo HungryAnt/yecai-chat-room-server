@@ -12,7 +12,7 @@ class ChatRoomService
               AreaItemsService, MapUserCountService,
               UserDataDao, CommandService, UserVehicleDao,
               UserRubbishService, UserNutrientService,
-              LargeRubbishService)
+              LargeRubbishService, UserExpService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -39,15 +39,26 @@ class ChatRoomService
       [res_sync_user_msg]
     end
 
-    register('update_lv_message') do |msg_map, params|
-      update_lv_msg = UpdateLvMessage.from_map msg_map
-      user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
-      current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
-      if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
-        LogUtil.info "update_user_lv #{user_id}, #{lv}, #{exp}"
-        @user_data_dao.update_user_lv user_id, lv, exp
+    # register('update_lv_message') do |msg_map, params|
+    #   update_lv_msg = UpdateLvMessage.from_map msg_map
+    #   user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
+    #   current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
+    #   if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
+    #     LogUtil.info "update_user_lv #{user_id}, #{lv}, #{exp}"
+    #     @user_data_dao.update_user_lv user_id, lv, exp
+    #   end
+    #   nil
+    # end
+
+    register('inc_exp_message') do |msg_map, params|
+      msg = IncExpMessage.from_map msg_map
+      user_id, exp = msg.user_id, msg.exp
+      if exp < 200
+        new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
+        [UpdateLvMessage.new(user_id, new_lv, new_exp)]
+      else
+        nil
       end
-      nil
     end
 
     register('chat_message') do |msg_map, params|
@@ -214,8 +225,14 @@ class ChatRoomService
       large_rubbish_id = msg.large_rubbish_id
       map_id = @user_service.get_map_id user_id
       broadcast_in_map map_id, msg
-      @large_rubbish_service.smash user_id, area_id, large_rubbish_id
-      nil
+      damage = @large_rubbish_service.smash area_id, large_rubbish_id
+      exp = damage.to_i
+      if exp > 0
+        new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
+        [UpdateLvMessage.new(user_id, new_lv, new_exp)]
+      else
+        nil
+      end
     end
 
     register('area_large_rubbishes_query_message') do |msg_map, params|

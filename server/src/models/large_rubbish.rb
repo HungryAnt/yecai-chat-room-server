@@ -9,7 +9,7 @@ class LargeRubbish
   end
 
   def smash
-    hp_dec = 200
+    hp_dec = 5
     hp_dec = @hp if hp_dec > @hp
     @hp -= hp_dec
     hp_dec

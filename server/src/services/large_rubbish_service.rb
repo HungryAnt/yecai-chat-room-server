@@ -47,7 +47,7 @@ class LargeRubbishService
       return if has_large_rubbish? area
     }
 
-    if rand(1) == 0
+    if rand(30) == 0
       x, y = random_large_available_position(area)
       large_rubbish = generate_random_large_rubbish(x, y)
       add_large_rubbish area, large_rubbish
@@ -62,14 +62,15 @@ class LargeRubbishService
     notify_large_rubbish_created area, large_rubbish
   end
 
-  def smash(user_id, area_id, large_rubbish_id)
+  def smash(area_id, large_rubbish_id)
+    damage = 0
     area = @map_service.get_area area_id
     large_rubbish = nil
     @mutex.synchronize {
       large_rubbishes = @area_large_rubbishes_disc[area_id]
       large_rubbish = large_rubbishes.find {|item| item.id == large_rubbish_id}
       return if large_rubbish.nil?
-      large_rubbish.smash
+      damage = large_rubbish.smash
       large_rubbishes.delete large_rubbish if large_rubbish.destroyed?
     }
     if large_rubbish.destroyed?
@@ -77,6 +78,7 @@ class LargeRubbishService
     else
       notify_large_rubbish_updated area, large_rubbish
     end
+    damage
   end
 
   def get_large_rubbishes_dict(map_id)
@@ -84,7 +86,9 @@ class LargeRubbishService
     large_rubbishes_dict = {}
     @mutex.synchronize {
       area_ids.each do |area_id|
-        large_rubbishes_dict[area_id] = @area_large_rubbishes_disc[area_id]
+        if @area_large_rubbishes_disc.include? area_id
+          large_rubbishes_dict[area_id] = @area_large_rubbishes_disc[area_id]
+        end
       end
     }
     large_rubbishes_dict
