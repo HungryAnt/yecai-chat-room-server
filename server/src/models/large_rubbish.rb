@@ -1,4 +1,6 @@
 class LargeRubbish
+  attr_reader :id
+
   def initialize(id, large_rubbish_type_id, max_hp, x, y)
     @id = id
     @large_rubbish_type_id = large_rubbish_type_id
@@ -7,7 +9,7 @@ class LargeRubbish
   end
 
   def smash
-    hp_dec = 3
+    hp_dec = 200
     hp_dec = @hp if hp_dec > @hp
     @hp -= hp_dec
     hp_dec
@@ -25,6 +27,12 @@ class LargeRubbish
         large_rubbish_type_id: @large_rubbish_type_id,
         max_hp: @max_hp,
         hp: @hp
+    }
+  end
+
+  def to_id_map
+    {
+        id: @id
     }
   end
 end

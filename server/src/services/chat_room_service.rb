@@ -212,8 +212,29 @@ class ChatRoomService
       user_id = msg.user_id
       area_id = msg.area_id
       large_rubbish_id = msg.large_rubbish_id
+      map_id = @user_service.get_map_id user_id
+      broadcast_in_map map_id, msg
       @large_rubbish_service.smash user_id, area_id, large_rubbish_id
+      nil
     end
+
+    register('area_large_rubbishes_query_message') do |msg_map, params|
+      msg = AreaLargeRubbishesQueryMessage.from_map(msg_map)
+      map_id = msg.map_id
+      large_rubbishes_dict = @large_rubbish_service.get_large_rubbishes_dict map_id
+      if large_rubbishes_dict.size > 0
+        large_rubbishes_msgs = []
+        large_rubbishes_dict.each_pair do |area_id, items|
+          items.each do |item|
+            large_rubbishes_msgs << LargeRubbishMessage.new(area_id, item.to_map, LargeRubbishMessage::Action::CREATE)
+          end
+        end
+        large_rubbishes_msgs
+      else
+        nil
+      end
+    end
+
   end
 
   def add_client(client)

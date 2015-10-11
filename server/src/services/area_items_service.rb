@@ -123,7 +123,7 @@ class AreaItemsService
         rubbish = generate_random_rubbish(x, y)
         add_item(area, rubbish)
       end
-      if rand(4) == 0
+      if rand(40) == 0
         x, y = get_random_position(area)
         nutrient = generate_random_nutrient(x, y)
         add_item(area, nutrient)
