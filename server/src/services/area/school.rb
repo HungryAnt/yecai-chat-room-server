@@ -64,7 +64,7 @@ school_ground_tiles_text = <<TILES
 TILES
 
 
-create_area('ground', 'school', school_ground_tiles_text)
+create_area('ground', 'school', school_ground_tiles_text, :village)
 
 
 school_lobby_tiles_text = <<TILES
@@ -130,7 +130,7 @@ school_lobby_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('lobby', 'school', school_lobby_tiles_text)
+create_area('lobby', 'school', school_lobby_tiles_text, :village)
 
 school_room_tiles_text = <<TILES
 ################################################################################
@@ -195,4 +195,4 @@ school_room_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('room', 'school', school_room_tiles_text)
+create_area('room', 'school', school_room_tiles_text, :village)

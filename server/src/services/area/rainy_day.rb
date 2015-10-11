@@ -63,7 +63,7 @@ rainy_day_1_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('rainy_day_1', 'rainy_day', rainy_day_1_tiles_text)
+create_area('rainy_day_1', 'rainy_day', rainy_day_1_tiles_text, :village)
 
 rainy_day_2_tiles_text = <<TILES
 ################################################################################
@@ -128,4 +128,4 @@ BBBB                                                                          ##
 ################################################################################
 TILES
 
-create_area('rainy_day_2', 'rainy_day', rainy_day_2_tiles_text)
+create_area('rainy_day_2', 'rainy_day', rainy_day_2_tiles_text, :village)

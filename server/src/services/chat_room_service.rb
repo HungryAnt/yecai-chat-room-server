@@ -11,7 +11,8 @@ class ChatRoomService
     autowired(UserService, BroadcastService, MessageHandlerService,
               AreaItemsService, MapUserCountService,
               UserDataDao, CommandService, UserVehicleDao,
-              UserRubbishService, UserNutrientService)
+              UserRubbishService, UserNutrientService,
+              LargeRubbishService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -204,6 +205,14 @@ class ChatRoomService
       map_id = @user_service.get_map_id collecting_nutrient_msg.user_id
       broadcast_in_map map_id, collecting_nutrient_msg
       nil
+    end
+
+    register('smash_large_rubbish_message') do |msg_map, params|
+      msg = SmashLargeRubbishMessage.from_map msg_map
+      user_id = msg.user_id
+      area_id = msg.area_id
+      large_rubbish_id = msg.large_rubbish_id
+      @large_rubbish_service.smash user_id, area_id, large_rubbish_id
     end
   end
 

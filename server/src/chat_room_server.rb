@@ -33,6 +33,8 @@ require 'messages/being_battered_message'
 require 'messages/collecting_rubbish_message'
 require 'messages/collecting_nutrient_message'
 require 'messages/map_user_count_message'
+require 'messages/large_rubbish_message'
+require 'messages/smash_large_rubbish_message'
 
 require 'models/user'
 require 'models/area'
@@ -40,6 +42,7 @@ require 'models/item'
 require 'models/food'
 require 'models/rubbish'
 require 'models/nutrient'
+require 'models/large_rubbish'
 
 require 'dao/db_connection_pool'
 require 'dao/user_data_dao'
@@ -60,6 +63,7 @@ require 'services/user_nutrient_service'
 require 'services/command_service'
 require 'services/encryption_service'
 require 'services/map_user_count_service'
+require 'services/large_rubbish_service'
 
 
 class ChatRoomServer

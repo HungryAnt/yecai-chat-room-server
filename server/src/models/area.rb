@@ -1,15 +1,29 @@
 class Area
-  attr_reader :id, :map_id
+  GRID_WIDTH = 10
+  GRID_HEIGHT = 10
 
-  def initialize(id, map_id, tiles_text)
+  attr_reader :id, :map_id, :area_type
+
+  def initialize(id, map_id, tiles_text, area_type)
     @id = id
     @map_id = map_id
+    @area_type = area_type
     init_tails tiles_text.lines.map {|line|line.chomp}
     init_available_location
+    init_large_available_location
   end
 
   def random_available_location
     @available_locations[rand @available_locations.size]
+  end
+
+  def random_large_available_location
+    @large_available_locations[rand @large_available_locations.size]
+  end
+
+  def self.get_position(row, col)
+    [GRID_WIDTH * col + GRID_WIDTH / 2,
+     GRID_HEIGHT * row + GRID_HEIGHT / 2]
   end
 
   private
@@ -33,6 +47,18 @@ class Area
       0.upto(@col_count-1) do |col|
         if @tiles[row][col] == ' ' || @tiles[row][col] == 'X'
           @available_locations << [row, col]
+        end
+      end
+    end
+  end
+
+  def init_large_available_location
+    edge_grid_count = 15
+    @large_available_locations = []
+    edge_grid_count.upto(@row_count-1-edge_grid_count) do |row|
+      edge_grid_count.upto(@col_count-1-edge_grid_count) do |col|
+        if @tiles[row][col] == ' ' || @tiles[row][col] == 'X'
+          @large_available_locations << [row, col]
         end
       end
     end

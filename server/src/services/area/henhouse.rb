@@ -63,7 +63,7 @@ henhouse_outside_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('henhouse_outside', 'henhouse', henhouse_outside_tiles_text)
+create_area('henhouse_outside', 'henhouse', henhouse_outside_tiles_text, :village)
 
 
 henhouse_inside_tiles_text = <<TILES
@@ -129,7 +129,7 @@ BBBBB                                                                         ##
 ################################################################################
 TILES
 
-create_area('henhouse_inside', 'henhouse', henhouse_inside_tiles_text)
+create_area('henhouse_inside', 'henhouse', henhouse_inside_tiles_text, :village)
 
 
 henhouse_back_garden_tiles_text = <<TILES
@@ -195,7 +195,7 @@ henhouse_back_garden_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('henhouse_back_garden', 'henhouse', henhouse_back_garden_tiles_text)
+create_area('henhouse_back_garden', 'henhouse', henhouse_back_garden_tiles_text, :village)
 
 
 henhouse_cow_cage_tiles_text = <<TILES
@@ -261,4 +261,4 @@ FFFFF             H         ####################################################
 ################################################################################
 TILES
 
-create_area('henhouse_cow_cage', 'henhouse', henhouse_cow_cage_tiles_text)
+create_area('henhouse_cow_cage', 'henhouse', henhouse_cow_cage_tiles_text, :village)

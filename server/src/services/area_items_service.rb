@@ -2,8 +2,6 @@
 require 'securerandom'
 
 class AreaItemsService
-  GRID_WIDTH = 10
-  GRID_HEIGHT = 10
   FOOD_TYPE_COUNT = 38
   RUBBISH_TYPE_COUNT = 12
   NUTRIENT_TYPE_COUNT = 3
@@ -152,8 +150,8 @@ class AreaItemsService
   end
 
   def add_item(area, item)
-    items = @areas_items_disc[area.id]
     @mutex.synchronize {
+      items = @areas_items_disc[area.id]
       items << item
     }
 
@@ -203,6 +201,6 @@ class AreaItemsService
   end
 
   def get_position(row, col)
-    [GRID_WIDTH * col + GRID_WIDTH / 2, GRID_HEIGHT * row + GRID_HEIGHT / 2]
+    Area.get_position row, col
   end
 end

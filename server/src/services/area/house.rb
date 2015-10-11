@@ -63,7 +63,7 @@ roof1_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('house_roof1', 'house', roof1_tiles_text)
+create_area('house_roof1', 'house', roof1_tiles_text, :village)
 
 roof2_tiles_text = <<TILES
 ################################################################################
@@ -128,7 +128,7 @@ BB                                                 #############################
 ################################################################################
 TILES
 
-create_area('house_roof2', 'house', roof2_tiles_text)
+create_area('house_roof2', 'house', roof2_tiles_text, :village)
 
 bottom_tiles_text = <<TILES
 ################################################################################
@@ -193,7 +193,7 @@ bottom_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('house_bottom', 'house', bottom_tiles_text)
+create_area('house_bottom', 'house', bottom_tiles_text, :village)
 
 kitchen_outside_tiles_text = <<TILES
 ################################################################################
@@ -258,7 +258,7 @@ KKKKKKKKKKKKKKKKKKKK                                                          ##
 ################################################################################
 TILES
 
-create_area('house_kitchen_outside', 'house', kitchen_outside_tiles_text)
+create_area('house_kitchen_outside', 'house', kitchen_outside_tiles_text, :village)
 
 kitchen_inside_tiles_text = <<TILES
 ################################################################################
@@ -323,4 +323,4 @@ HH                                                                            ##
 ################################################################################
 TILES
 
-create_area('house_kitchen_inside', 'house', kitchen_inside_tiles_text)
+create_area('house_kitchen_inside', 'house', kitchen_inside_tiles_text, :village)

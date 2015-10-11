@@ -63,4 +63,4 @@ tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('grass', 'grass_wood_back', tiles_text)
+create_area('grass', 'grass_wood_back', tiles_text, :village)

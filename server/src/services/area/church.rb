@@ -64,7 +64,7 @@ outside_tiles_text = <<TILES
 TILES
 
 
-create_area('outside', 'church', outside_tiles_text)
+create_area('outside', 'church', outside_tiles_text, :village)
 
 
 inside_tiles_text = <<TILES
@@ -130,4 +130,4 @@ inside_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('inside', 'church', inside_tiles_text)
+create_area('inside', 'church', inside_tiles_text, :village)

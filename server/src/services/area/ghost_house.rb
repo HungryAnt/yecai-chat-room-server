@@ -63,7 +63,7 @@ ghost_house_0_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('ghost_house_0', 'ghost_house', ghost_house_0_tiles_text)
+create_area('ghost_house_0', 'ghost_house', ghost_house_0_tiles_text, :village)
 
 ghost_house_1_tiles_text = <<TILES
 ################################################################################
@@ -128,7 +128,7 @@ ghost_house_1_tiles_text = <<TILES
 ################################################################BBBBBBBBBBBBBBBB
 TILES
 
-create_area('ghost_house_1', 'ghost_house', ghost_house_1_tiles_text)
+create_area('ghost_house_1', 'ghost_house', ghost_house_1_tiles_text, :village)
 
 ghost_house_2_tiles_text = <<TILES
 ################################################################################
@@ -193,4 +193,4 @@ ghost_house_2_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('ghost_house_2', 'ghost_house', ghost_house_2_tiles_text)
+create_area('ghost_house_2', 'ghost_house', ghost_house_2_tiles_text, :village)
