@@ -41,3 +41,30 @@ CREATE TABLE `v1_user_nutrients` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_user_id_type_id` (`user_id`,`type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `v1_chat_messages`;
+CREATE TABLE `v1_chat_messages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(64) NOT NULL,
+  `user_name` varchar(64) NOT NULL,
+  `map_id` varchar(64) NOT NULL,
+  `content` varchar(1024) NOT NULL,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `v1_user_scores`;
+CREATE TABLE `v1_user_scores` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(64) NOT NULL,
+  `food_score` int(11) NOT NULL,
+  `rubbish_score` int(11) NOT NULL,
+  `large_rubbish_score` int(11) NOT NULL,
+  `chat_score` int(11) NOT NULL,
+  `nutrient_score` int(11) NOT NULL,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

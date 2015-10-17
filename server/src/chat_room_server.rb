@@ -52,6 +52,8 @@ require 'dao/user_data_dao'
 require 'dao/user_vehicle_dao'
 require 'dao/user_rubbish_dao'
 require 'dao/user_nutrient_dao'
+require 'dao/user_score_dao'
+require 'dao/chat_message_dao'
 
 require 'services/item_factory'
 require 'services/user_exp_service'
@@ -68,6 +70,8 @@ require 'services/command_service'
 require 'services/encryption_service'
 require 'services/map_user_count_service'
 require 'services/large_rubbish_service'
+require 'services/user_score_service'
+require 'services/chat_message_service'
 
 
 class ChatRoomServer

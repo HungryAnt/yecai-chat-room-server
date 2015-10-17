@@ -12,7 +12,8 @@ class ChatRoomService
               AreaItemsService, MapUserCountService,
               UserDataDao, CommandService, UserVehicleDao,
               UserRubbishService, UserNutrientService,
-              LargeRubbishService, UserExpService)
+              LargeRubbishService, UserExpService,
+              UserScoreService, ChatMessageService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
@@ -64,9 +65,13 @@ class ChatRoomService
     register('chat_message') do |msg_map, params|
       chat_msg = ChatMessage.from_map(msg_map)
       user_id = chat_msg.user_id
+      user_name = chat_msg.user_name
+      content = chat_msg.content
       map_id = @user_service.get_map_id user_id
       LogUtil.info "get_map_id: #{map_id}"
       broadcast_in_map map_id, chat_msg unless map_id.nil?
+      @user_score_service.inc_chat_score user_id
+      @chat_message_service.add_message user_id, user_name, map_id, content
       nil
     end
 
@@ -141,6 +146,7 @@ class ChatRoomService
 
     register('try_pickup_item_message') do |msg_map, params|
       area_item_msg = TryPickupItemMessage.from_map(msg_map)
+      user_id = area_item_msg.user_id
       area_id = area_item_msg.area_id
       item_id = area_item_msg.item_id
       target_item = @area_items_service.try_pickup area_id, item_id
@@ -149,8 +155,10 @@ class ChatRoomService
       else
         if target_item.instance_of? Rubbish
           @user_rubbish_service.add_rubbish area_item_msg.user_id, target_item.rubbish_type_id
+          @user_score_service.inc_rubbish_score user_id
         elsif target_item.instance_of? Nutrient
           @user_nutrient_service.add_nutrient area_item_msg.user_id, target_item.nutrient_type_id
+          @user_score_service.inc_nutrient_score user_id
         end
         [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
       end
@@ -187,6 +195,7 @@ class ChatRoomService
         map_id = user.map_id
         broadcast_in_map map_id, eat_up_food_msg
       end
+      @user_score_service.inc_food_score(user_id)
       nil
     end
 
@@ -228,6 +237,7 @@ class ChatRoomService
       damage = @large_rubbish_service.smash area_id, large_rubbish_id
       exp = damage.to_i
       if exp > 0
+        @user_score_service.inc_large_rubbish_score
         new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
         [UpdateLvMessage.new(user_id, new_lv, new_exp)]
       else

@@ -1,12 +1,6 @@
-class UserVehicleDao
-  def initialize
-    autowired(DbConnectionPool)
-  end
+require_relative 'dao_base'
 
-  def get_my
-    @db_connection_pool.get_conn
-  end
-
+class UserVehicleDao < DaoBase
   def clear
     get_my.query('delete from v1_user_vehicles')
   end
