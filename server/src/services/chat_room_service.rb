@@ -237,7 +237,7 @@ class ChatRoomService
       damage = @large_rubbish_service.smash area_id, large_rubbish_id
       exp = damage.to_i
       if exp > 0
-        @user_score_service.inc_large_rubbish_score
+        @user_score_service.inc_large_rubbish_score user_id
         new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
         [UpdateLvMessage.new(user_id, new_lv, new_exp)]
       else
