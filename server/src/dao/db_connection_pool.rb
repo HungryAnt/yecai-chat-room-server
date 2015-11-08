@@ -16,6 +16,7 @@ class DbConnectionPool
     rescue Exception => e
       LogUtil.error 'DbConnectionPool get_conn:'
       LogUtil.error e.backtrace.inspect
+      conn.close
       conn = mysql_connect
       @pool[num] = conn
     end

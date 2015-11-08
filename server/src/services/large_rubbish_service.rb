@@ -2,7 +2,7 @@
 require 'securerandom'
 
 class LargeRubbishService
-  LARGE_RUBBISH_TYPE_COUNT = 10
+  LARGE_RUBBISH_TYPE_COUNT = 29
 
   def initialize
     autowired(MapService, BroadcastService)
