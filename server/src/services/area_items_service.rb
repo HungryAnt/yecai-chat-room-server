@@ -141,7 +141,7 @@ class AreaItemsService
     else
       energy = 50
     end
-    Food.new(id, food_type_id, x, y, energy)
+    Food.new(id, food_type_id, x, y, energy, energy)
   end
 
   def generate_random_rubbish(x, y)
