@@ -10,257 +10,62 @@ class ChatRoomService
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService,
               AreaItemsService, MapUserCountService,
-              UserDataDao, CommandService, UserVehicleDao,
-              UserRubbishService, UserNutrientService,
               LargeRubbishService, UserExpService,
-              UserScoreService, ChatMessageService)
+              UserScoreService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0
     init_message_handler
   end
 
+  def bind(msg_type, clazz, action)
+    controller = get_instance clazz
+    method = controller.method action
+    register(msg_type) do |msg_map, params|
+      method.call msg_map, params
+    end
+  end
+
   def init_message_handler
-    register('command_message') do |msg_map, params|
-      cmd_msg = CommandMessage.from_map(msg_map)
-      @command_service.process cmd_msg
-      nil
-    end
+    bind 'command_message', CommandController, :command
 
-    register('init_sync_user_message') do |msg_map, params|
-      init_sync_user_msg = InitSyncUserMessage.from_map(msg_map)
-      user_id = init_sync_user_msg.user_id
-      user_name = init_sync_user_msg.user_name
-      @user_data_dao.sync_user user_id, user_name
-      lv, exp = @user_data_dao.get_user_lv user_id
-      vehicles = @user_vehicle_dao.get_vehicles user_id
-      rubbishes = @user_rubbish_service.get_rubbishes user_id
-      nutrients = @user_nutrient_service.get_nutrients user_id
-      res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles, rubbishes, nutrients)
-      [res_sync_user_msg]
-    end
+    bind 'init_sync_user_message', UserController, :init_sync_user
 
-    # register('update_lv_message') do |msg_map, params|
-    #   update_lv_msg = UpdateLvMessage.from_map msg_map
-    #   user_id, lv, exp = update_lv_msg.user_id, update_lv_msg.lv, update_lv_msg.exp
-    #   current_lv, current_exp = @user_data_dao.get_user_lv(user_id)
-    #   if lv >= 1 && lv <= 200 && exp >= 0 && lv >= current_lv && lv - current_lv < 3
-    #     LogUtil.info "update_user_lv #{user_id}, #{lv}, #{exp}"
-    #     @user_data_dao.update_user_lv user_id, lv, exp
-    #   end
-    #   nil
-    # end
+    bind 'inc_exp_message', UserController, :inc_exp
 
-    register('inc_exp_message') do |msg_map, params|
-      msg = IncExpMessage.from_map msg_map
-      user_id, exp = msg.user_id, msg.exp
-      if exp < 200
-        new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
-        [UpdateLvMessage.new(user_id, new_lv, new_exp)]
-      else
-        nil
-      end
-    end
+    bind 'chat_message', ChatController, :chat
 
-    register('chat_message') do |msg_map, params|
-      chat_msg = ChatMessage.from_map(msg_map)
-      user_id = chat_msg.user_id
-      user_name = chat_msg.user_name
-      content = chat_msg.content
-      map_id = @user_service.get_map_id user_id
-      LogUtil.info "get_map_id: #{map_id}"
-      broadcast_in_map map_id, chat_msg unless map_id.nil?
-      @user_score_service.inc_chat_score user_id
-      @chat_message_service.add_message user_id, user_name, map_id, content
-      nil
-    end
+    bind 'join_message', UserController, :join
 
-    register('join_message') do |msg_map, params|
-      join_message = JoinMessage.from_map(msg_map)
-      user_id = join_message.user_id
-      user_name = join_message.user_name
-      lv = join_message.lv
-      map_id = join_message.map_id
-      @user_service.join user_id, user_name, map_id, params[:client]
-      broadcast_in_map map_id, SystemMessage.new("欢迎新成员 #{user_name} (Lv.#{lv}) 加入")
-      nil
-    end
+    bind 'quit_message', UserController, :quit
 
-    register('quit_message') do |msg_map, params|
-      quit_message = QuitMessage.from_map(msg_map)
-      user_id = quit_message.user_id
-      user_name = quit_message.user_name
-      map_id = quit_message.map_id
-      @user_service.quit user_id, map_id
-      broadcast_in_map map_id, quit_message
-      broadcast_in_map map_id, SystemMessage.new("成员 #{user_name} 已离开")
-      nil
-    end
+    bind 'role_message', UserController, :update_role
 
-    register('role_message') do |msg_map, params|
-      role_msg = RoleMessage.from_map(msg_map)
-      user_id = role_msg.user_id
-      map_id = @user_service.get_map_id user_id
-      @user_service.update_role user_id, role_msg.role_map
+    bind 'roles_query_message', UserController, :query_roles
 
-      user = @user_service.get_user(user_id)
-      unless user.nil?
-        role_msg.role_map['food_type_id'] = user.food_type_id # todo refactor
-        broadcast_in_map map_id, role_msg
-      end
-      nil
-    end
+    bind 'area_items_query_message', AreaItemController, :query_area_items
 
-    register('roles_query_message') do |msg_map, params|
-      roles_query_msg = RolesQueryMessage.from_map(msg_map)
-      map_id = roles_query_msg.map_id
-      users = @user_service.get_users(map_id)
-      if users.length > 0
-        role_msgs = []
-        users.each do |user|
-          role_msg = RoleMessage.new(user.user_id, user.user_name, user.get_role_map)
-          role_msgs << role_msg
-        end
-         role_msgs
-      else
-        nil
-      end
-    end
+    bind 'try_pickup_item_message', AreaItemController, :try_pickup_item
 
-    register('area_items_query_message') do |msg_map, params|
-      area_items_query_msg = AreaItemsQueryMessage.from_map(msg_map)
-      map_id = area_items_query_msg.map_id
-      area_items_dict = @area_items_service.get_area_items_by_map_id map_id
-      if area_items_dict.size > 0
-        area_items_msgs = []
-        area_items_dict.each_pair do |area_id, items|
-          items.each do |item|
-            area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
-          end
-        end
-        area_items_msgs
-      else
-        nil
-      end
-    end
+    bind 'discard_item_message', AreaItemController, :discard_item
 
-    register('try_pickup_item_message') do |msg_map, params|
-      area_item_msg = TryPickupItemMessage.from_map(msg_map)
-      user_id = area_item_msg.user_id
-      area_id = area_item_msg.area_id
-      item_id = area_item_msg.item_id
-      target_item = @area_items_service.try_pickup area_id, item_id
-      if target_item.nil?
-        nil
-      else
-        if target_item.instance_of? Rubbish
-          @user_rubbish_service.add_rubbish area_item_msg.user_id, target_item.rubbish_type_id
-          @user_score_service.inc_rubbish_score user_id
-        elsif target_item.instance_of? Nutrient
-          @user_nutrient_service.add_nutrient area_item_msg.user_id, target_item.nutrient_type_id
-          @user_score_service.inc_nutrient_score user_id
-        end
-        [AreaItemMessage.new(area_id, target_item.to_map, AreaItemMessage::Action::PICKUP)]
-      end
-    end
+    bind 'eating_food_message', UserController, :eating_food
 
-    register('discard_item_message') do |msg_map, params|
-      discard_item_msg = DiscardItemMessage.from_map(msg_map)
-      area_id = discard_item_msg.area_id
-      item_map = discard_item_msg.item_map
+    bind 'eat_up_food_message', UserController, :eat_up_food
 
-      item = ItemFactory.create_item item_map
-      @area_items_service.discard area_id, item
-      nil
-    end
+    bind 'hit_message', UserController, :hit
 
-    register('eating_food_message') do |msg_map, params|
-      eating_food_msg = EatingFoodMessage.from_map(msg_map)
-      user_id = eating_food_msg.user_id
-      user = @user_service.get_user(user_id)
-      unless user.nil?
-        user.eating(eating_food_msg.food_map['food_type_id'])
-        map_id = user.map_id
-        broadcast_in_map map_id, eating_food_msg
-      end
-      nil
-    end
+    bind 'being_battered_message', UserController, :being_battered
 
-    register('eat_up_food_message') do |msg_map, params|
-      eat_up_food_msg = EatUpFoodMessage.from_map msg_map
-      user_id = eat_up_food_msg.user_id
-      user = @user_service.get_user(user_id)
-      unless user.nil?
-        user.eat_up
-        map_id = user.map_id
-        broadcast_in_map map_id, eat_up_food_msg
-      end
-      @user_score_service.inc_food_score(user_id)
-      nil
-    end
+    bind 'collecting_rubbish_message', UserController, :collecting_rubbish
 
-    register('hit_message') do |msg_map, params|
-      hit_msg = HitMessage.from_map msg_map
-      map_id = @user_service.get_map_id hit_msg.user_id
-      broadcast_in_map map_id, hit_msg
-      nil
-    end
+    bind 'collecting_nutrient_message', UserController, :collecting_nutrient
 
-    register('being_battered_message') do |msg_map, params|
-      being_battered_msg = BeingBatteredMessage.from_map msg_map
-      map_id = @user_service.get_map_id being_battered_msg.user_id
-      broadcast_in_map map_id, being_battered_msg
-      nil
-    end
+    bind'smash_large_rubbish_message', UserController, :smash_large_rubbish
 
-    register('collecting_rubbish_message') do |msg_map, params|
-      collecting_rubbish_msg = CollectingRubbishMessage.from_map msg_map
-      map_id = @user_service.get_map_id collecting_rubbish_msg.user_id
-      broadcast_in_map map_id, collecting_rubbish_msg
-      nil
-    end
+    bind 'area_large_rubbishes_query_message', UserController, :query_area_large_rubbishes
 
-    register('collecting_nutrient_message') do |msg_map, params|
-      collecting_nutrient_msg = CollectingNutrientMessage.from_map msg_map
-      map_id = @user_service.get_map_id collecting_nutrient_msg.user_id
-      broadcast_in_map map_id, collecting_nutrient_msg
-      nil
-    end
-
-    register('smash_large_rubbish_message') do |msg_map, params|
-      msg = SmashLargeRubbishMessage.from_map msg_map
-      user_id = msg.user_id
-      area_id = msg.area_id
-      large_rubbish_id = msg.large_rubbish_id
-      map_id = @user_service.get_map_id user_id
-      broadcast_in_map map_id, msg
-      damage = @large_rubbish_service.smash area_id, large_rubbish_id
-      exp = damage.to_i
-      if exp > 0
-        @user_score_service.inc_large_rubbish_score user_id
-        new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
-        [UpdateLvMessage.new(user_id, new_lv, new_exp)]
-      else
-        nil
-      end
-    end
-
-    register('area_large_rubbishes_query_message') do |msg_map, params|
-      msg = AreaLargeRubbishesQueryMessage.from_map(msg_map)
-      map_id = msg.map_id
-      large_rubbishes_dict = @large_rubbish_service.get_large_rubbishes_dict map_id
-      if large_rubbishes_dict.size > 0
-        large_rubbishes_msgs = []
-        large_rubbishes_dict.each_pair do |area_id, items|
-          items.each do |item|
-            large_rubbishes_msgs << LargeRubbishMessage.new(area_id, item.to_map, LargeRubbishMessage::Action::CREATE)
-          end
-        end
-        large_rubbishes_msgs
-      else
-        nil
-      end
-    end
+    bind 'pet_message', PetController, :update_pet
 
   end
 

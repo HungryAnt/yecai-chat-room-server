@@ -37,6 +37,7 @@ require 'messages/large_rubbish_message'
 require 'messages/smash_large_rubbish_message'
 require 'messages/area_large_rubbishes_query_message'
 require 'messages/inc_exp_message'
+require 'messages/pet_message'
 
 require 'models/user'
 require 'models/area'
@@ -72,6 +73,13 @@ require 'services/map_user_count_service'
 require 'services/large_rubbish_service'
 require 'services/user_score_service'
 require 'services/chat_message_service'
+
+require 'controllers/controller_base'
+require 'controllers/command_controller'
+require 'controllers/chat_controller'
+require 'controllers/user_controller'
+require 'controllers/area_item_controller'
+require 'controllers/pet_controller'
 
 
 class ChatRoomServer
