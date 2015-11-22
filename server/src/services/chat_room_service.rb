@@ -9,9 +9,7 @@ class ChatRoomService
 
   def initialize
     autowired(UserService, BroadcastService, MessageHandlerService,
-              AreaItemsService, MapUserCountService,
-              LargeRubbishService, UserExpService,
-              UserScoreService)
+              MapUserCountService)
     @text_messages = []
     @mutex = Mutex.new
     @version_offset = 0

@@ -4,7 +4,8 @@ class UserController < ControllerBase
   def initialize
     super
     autowired(UserDataDao, UserVehicleDao, UserRubbishService, UserNutrientService,
-              UserScoreService, UserService, UserExpService)
+              UserScoreService, UserService, UserExpService,
+              LargeRubbishService)
   end
 
   def init_sync_user(msg_map, params)
