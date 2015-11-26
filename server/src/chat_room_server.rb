@@ -49,6 +49,7 @@ require 'models/large_rubbish'
 require 'models/exp_tool'
 
 require 'dao/db_connection_pool'
+require 'dao/dao_base'
 require 'dao/user_data_dao'
 require 'dao/user_vehicle_dao'
 require 'dao/user_rubbish_dao'

@@ -1,7 +1,7 @@
 class ChatController < ControllerBase
   def initialize
     super
-    autowired(ChatMessageService, UserScoreService)
+    autowired(ChatMessageService, UserService, UserScoreService)
   end
 
   def chat(msg_map, params)

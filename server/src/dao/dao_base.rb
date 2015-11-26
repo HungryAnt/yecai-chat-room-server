@@ -3,7 +3,7 @@ class DaoBase
     autowired(DbConnectionPool)
   end
 
-  def get_my
-    @db_connection_pool.get_conn
+  def execute(&action)
+    @db_connection_pool.execute &action
   end
 end

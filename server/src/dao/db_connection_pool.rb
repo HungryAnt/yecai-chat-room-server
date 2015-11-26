@@ -1,26 +1,32 @@
 class DbConnectionPool
-  POOL_SIZE = 10
+  INIT_POOL_SIZE = 0
 
   def initialize
     @pool = []
-    0.upto(POOL_SIZE - 1) do
+    0.upto(INIT_POOL_SIZE - 1) do
       @pool << mysql_connect
     end
+    @mutex = Mutex.new
+    @actual_pool_size = INIT_POOL_SIZE
   end
 
-  def get_conn
-    num = Thread.current.hash % POOL_SIZE
-    conn = @pool[num]
+  def execute
+    return unless block_given?
     begin
-      conn.query('select 1')
+      conn = get_conn
+      test conn
+      yield conn
+      add_to_pool conn
     rescue Exception => e
-      LogUtil.error 'DbConnectionPool get_conn:'
-      LogUtil.error e.backtrace.inspect
+      @mutex.synchronize {
+        @actual_pool_size -= 1
+      }
       conn.close
-      conn = mysql_connect
-      @pool[num] = conn
+      LogUtil.error 'DbConnectionPool execute'
+      LogUtil.error e.backtrace.inspect
+      raise e
     end
-    conn
+    LogUtil.info "actual_pool_size: #{@actual_pool_size}"
   end
 
   private
@@ -29,5 +35,39 @@ class DbConnectionPool
                   Mysql::OPT_CONNECT_TIMEOUT=>1000,
                   Mysql::OPT_READ_TIMEOUT=>1000,
                   Mysql::OPT_WRITE_TIMEOUT=>1000)
+  end
+
+  def get_conn
+    Timeout.timeout(3) do
+      while @actual_pool_size >= 30
+        sleep 2
+      end
+    end
+
+    @mutex.synchronize {
+      if @pool.size > 0
+        return @pool.pop
+      else
+        @actual_pool_size += 1
+        return mysql_connect
+      end
+    }
+  end
+
+  def add_to_pool(conn)
+    @mutex.synchronize {
+      @pool.push conn
+    }
+  end
+
+  def test(conn)
+    begin
+      conn.query('select 1')
+    rescue Exception => e
+      LogUtil.error 'reconnect'
+      conn.close
+      conn = mysql_connect
+    end
+    conn
   end
 end
