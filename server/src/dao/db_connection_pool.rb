@@ -1,5 +1,5 @@
 class DbConnectionPool
-  INIT_POOL_SIZE = 0
+  INIT_POOL_SIZE = 20
 
   def initialize
     @pool = []
