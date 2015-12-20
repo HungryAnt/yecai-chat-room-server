@@ -1,6 +1,7 @@
 class MapUserCountService
   def initialize
-    autowired(BroadcastService, UserService, LargeRubbishService)
+    autowired(BroadcastService, UserService, LargeRubbishService,
+              MonsterService)
     @all_user_count = 0
     @mutex = Mutex.new
     init_sync_map_user_count_thread
@@ -36,8 +37,9 @@ class MapUserCountService
   def sync_map_user_count
     map_user_count_dict = @user_service.get_map_user_count_dict
     map_large_rubbish_dict = @large_rubbish_service.get_map_large_rubbish_dict
+    map_monster_dict = @monster_service.get_map_monster_dict
     map_user_count_msg = MapUserCountMessage.new(
-        map_user_count_dict, @all_user_count, map_large_rubbish_dict)
+        map_user_count_dict, @all_user_count, map_large_rubbish_dict, map_monster_dict)
     @broadcast_service.send_all map_user_count_msg.to_json
   end
 end

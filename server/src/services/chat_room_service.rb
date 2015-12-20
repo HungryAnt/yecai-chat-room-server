@@ -61,7 +61,7 @@ class ChatRoomService
 
     bind'smash_large_rubbish_message', UserController, :smash_large_rubbish
 
-    bind 'area_large_rubbishes_query_message', UserController, :query_area_large_rubbishes
+    bind 'area_enemies_query_message', UserController, :query_area_enemies
 
     bind 'pet_message', PetController, :update_pet
 

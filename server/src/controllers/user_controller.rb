@@ -5,7 +5,7 @@ class UserController < ControllerBase
     super
     autowired(UserDataDao, UserVehicleDao, UserRubbishService, UserNutrientService,
               UserScoreService, UserService, UserExpService,
-              LargeRubbishService)
+              LargeRubbishService, MonsterService)
   end
 
   def init_sync_user(msg_map, params)
@@ -155,20 +155,26 @@ class UserController < ControllerBase
     end
   end
 
-  def query_area_large_rubbishes(msg_map, params)
+  def query_area_enemies(msg_map, params)
     msg = AreaLargeRubbishesQueryMessage.from_map(msg_map)
     map_id = msg.map_id
     large_rubbishes_dict = @large_rubbish_service.get_large_rubbishes_dict map_id
-    if large_rubbishes_dict.size > 0
-      large_rubbishes_msgs = []
-      large_rubbishes_dict.each_pair do |area_id, items|
-        items.each do |item|
-          large_rubbishes_msgs << LargeRubbishMessage.new(area_id, item.to_map, LargeRubbishMessage::Action::CREATE)
-        end
+    monsters_dict = @monster_service.get_monsters_dict map_id
+
+    enemies_msgs = []
+
+    large_rubbishes_dict.each_pair do |area_id, items|
+      items.each do |item|
+        enemies_msgs << LargeRubbishMessage.new(area_id, item.to_map, LargeRubbishMessage::Action::CREATE)
       end
-      large_rubbishes_msgs
-    else
-      nil
     end
+
+    monsters_dict.each_pair do |area_id, items|
+      items.each do |item|
+        enemies_msgs << MonsterMessage.new(area_id, item.to_map, MonsterMessage::Action::CREATE)
+      end
+    end
+
+    enemies_msgs
   end
 end

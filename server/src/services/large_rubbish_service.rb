@@ -14,9 +14,7 @@ class LargeRubbishService
 
   def init_large_rubbishes
     @area_large_rubbishes_disc = {}
-    @all_areas.each do |area|
-      @area_large_rubbishes_disc[area.id] = []
-    end
+    @all_areas.each { |area| @area_large_rubbishes_disc[area.id] = [] }
   end
 
   def init_generation_thread
