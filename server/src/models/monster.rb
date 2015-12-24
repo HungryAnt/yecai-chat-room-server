@@ -1,19 +1,7 @@
-class Monster
+class Monster < Enemy
   def initialize(id, monster_type_id, max_hp, x, y)
-    @id, @monster_type_id = id, monster_type_id
-    @max_hp = @hp = max_hp
-    @x, @y = x, y
-  end
-
-  def smash
-    hp_dec = 5
-    hp_dec = @hp if hp_dec > @hp
-    @hp -= hp_dec
-    hp_dec
-  end
-
-  def destroyed?
-    @hp < 0.00001
+    super(id, max_hp, x, y)
+    @monster_type_id = monster_type_id
   end
 
   def to_map
@@ -24,12 +12,6 @@ class Monster
         monster_type_id: @monster_type_id,
         max_hp: @max_hp,
         hp: @hp
-    }
-  end
-
-  def to_id_map
-    {
-        id: @id
     }
   end
 end

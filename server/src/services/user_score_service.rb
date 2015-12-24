@@ -21,6 +21,10 @@ class UserScoreService
     inc_score user_id, 'large_rubbish_score'
   end
 
+  def inc_monster_score(user_id)
+    inc_score user_id, 'monster_score'
+  end
+
   def inc_chat_score(user_id)
     inc_score user_id, 'chat_score'
   end

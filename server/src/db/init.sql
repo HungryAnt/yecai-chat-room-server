@@ -62,9 +62,12 @@ CREATE TABLE `v1_user_scores` (
   `food_score` int(11) NOT NULL,
   `rubbish_score` int(11) NOT NULL,
   `large_rubbish_score` int(11) NOT NULL,
+  `monster_score` int(11) NOT NULL DEFAULT '0',
   `chat_score` int(11) NOT NULL,
   `nutrient_score` int(11) NOT NULL,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+# ALTER TABLE v1_user_scores ADD monster_score int(11) NOT NULL DEFAULT '0' AFTER large_rubbish_score;

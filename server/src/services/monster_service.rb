@@ -12,16 +12,23 @@ class MonsterService
     init_thread
   end
 
-  def get_map_monster_dict
-    map_monster_dict = {}
+  def smash(area_id, monster_id)
+    damage = 0
+    area = @map_service.get_area area_id
+    monster = nil
     @mutex.synchronize {
-      @all_areas.each do |area|
-        if @area_monsters_disc[area.id].size > 0
-          map_monster_dict[area.map_id] = true
-        end
-      end
+      monsters = @area_monsters_disc[area_id]
+      monster = monsters.find {|item| item.id == monster_id}
+      return if monster.nil?
+      damage = monster.smash
+      monsters.delete monster if monster.destroyed?
     }
-    map_monster_dict
+    if monster.destroyed?
+      notify_monster_destroyed area, monster
+    else
+      notify_monster_updated area, monster
+    end
+    damage
   end
 
   def get_monsters_dict(map_id)
@@ -35,6 +42,18 @@ class MonsterService
       end
     }
     monsters_dict
+  end
+
+  def get_map_monster_dict
+    map_monster_dict = {}
+    @mutex.synchronize {
+      @all_areas.each do |area|
+        if @area_monsters_disc[area.id].size > 0
+          map_monster_dict[area.map_id] = true
+        end
+      end
+    }
+    map_monster_dict
   end
 
   private
@@ -118,6 +137,16 @@ class MonsterService
   def notify_monster_created(area, monster)
     map = monster.to_map
     send_notify_msg area, map, MonsterMessage::Action::CREATE
+  end
+
+  def notify_monster_updated(area, monster)
+    map = monster.to_map
+    send_notify_msg area, map, MonsterMessage::Action::UPDATE
+  end
+
+  def notify_monster_destroyed(area, monster)
+    map = monster.to_id_map
+    send_notify_msg area, map, MonsterMessage::Action::DESTROY
   end
 
   def send_notify_msg(area, monster_map, action)
