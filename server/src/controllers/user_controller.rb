@@ -163,7 +163,7 @@ class UserController < ControllerBase
     map_id = @user_service.get_map_id user_id
     broadcast_in_map map_id, msg
     damage = @monster_service.smash area_id, monster_id
-    exp = damage.to_i
+    exp = damage.to_i * 3 # 攻击野怪经验
     if exp > 0
       @user_score_service.inc_monster_score user_id
       new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp

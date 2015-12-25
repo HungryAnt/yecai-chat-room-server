@@ -4,7 +4,7 @@ class Enemy
   def initialize(id, max_hp, x, y)
     @id = id
     @max_hp = @hp = max_hp
-    @x, @y = x, y
+    update_location x, y
   end
 
   def smash
@@ -16,6 +16,10 @@ class Enemy
 
   def destroyed?
     @hp < 0.00001
+  end
+
+  def update_location(x, y)
+    @x, @y = x, y
   end
 
   def to_id_map

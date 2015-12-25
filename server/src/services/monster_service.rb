@@ -2,7 +2,14 @@
 require 'securerandom'
 
 class MonsterService
-  MONSTERS = %w(monster_0002 monster_0004)
+  MAX_MONSTER_COUNT = 100
+
+  MONSTERS = %w(monster_0001 monster_0002 monster_0004 monster_0005 monster_0006
+    monster_0007 monster_0008)
+
+  SNOW_MONSTER = 'monster_20000'
+
+  MONSTER_ACTIONS = [:move, :attack, :stand]
 
   def initialize
     autowired(MapService, BroadcastService)
@@ -26,7 +33,7 @@ class MonsterService
     if monster.destroyed?
       notify_monster_destroyed area, monster
     else
-      notify_monster_updated area, monster
+      notify_monster_updated_hp area, monster
     end
     damage
   end
@@ -82,25 +89,41 @@ class MonsterService
 
   def process_monster_generation
     @mutex.synchronize {
-      # 最多允许同时存在4个怪兽
-      return if get_monsters_count >= 4
+      # 怪物数量控制
+      return if get_monsters_count >= MAX_MONSTER_COUNT
     }
 
     area = @all_areas[rand(@all_areas.size)]
 
-    @mutex.synchronize {
-      return if has_monsters? area
-    }
+    # @mutex.synchronize {
+    #   return if has_monsters? area
+    # }
 
-    if rand(3) == 0
+    if true # rand(3) == 0
       x, y = random_large_available_position(area)
-      monster = generate_random_monster(x, y)
+      monster = generate_random_monster(area, x, y)
       add_monster area, monster
     end
   end
 
   def process_monsters
+    @area_monsters_disc.each_entry do |area_id, monsters|
+      area = @map_service.get_area area_id
 
+      monsters.each do |monster|
+        monster_action = MONSTER_ACTIONS[rand(MONSTER_ACTIONS.size)]
+        case monster_action
+          when :move
+            x, y = random_large_available_position area
+            notify_monster_move area, monster, x, y
+          when :attack
+            notify_monster_attack area, monster
+          when :stand
+            # 不做处理即可
+        end
+
+      end
+    end
   end
 
   def get_monsters_count
@@ -118,11 +141,16 @@ class MonsterService
     Area.get_position(row, col)
   end
 
-  def generate_random_monster(x, y)
+  def generate_random_monster(area, x, y)
     id = SecureRandom.uuid
     max_hp = 1500
 
-    monster_type_id = MONSTERS[rand(MONSTERS.size)] # "#{'%04d' % rand(MONSTER_TYPE_COUNT)}"
+    if area.map_id == 'snow_village'
+      monster_type_id = SNOW_MONSTER
+    else
+      monster_type_id = MONSTERS[rand(MONSTERS.size)] # "#{'%04d' % rand(MONSTER_TYPE_COUNT)}"
+    end
+
     Monster.new(id, monster_type_id, max_hp, x, y)
   end
 
@@ -139,9 +167,9 @@ class MonsterService
     send_notify_msg area, map, MonsterMessage::Action::CREATE
   end
 
-  def notify_monster_updated(area, monster)
+  def notify_monster_updated_hp(area, monster)
     map = monster.to_map
-    send_notify_msg area, map, MonsterMessage::Action::UPDATE
+    send_notify_msg area, map, MonsterMessage::Action::UPDATE_HP
   end
 
   def notify_monster_destroyed(area, monster)
@@ -149,8 +177,19 @@ class MonsterService
     send_notify_msg area, map, MonsterMessage::Action::DESTROY
   end
 
-  def send_notify_msg(area, monster_map, action)
-    msg = MonsterMessage.new(area.id, monster_map, action)
+  def notify_monster_move(area, monster, x, y)
+    map = monster.to_map
+    send_notify_msg area, map, MonsterMessage::Action::MOVE, x:x, y:y
+    monster.update_location x, y
+  end
+
+  def notify_monster_attack(area, monster)
+    map = monster.to_map
+    send_notify_msg area, map, MonsterMessage::Action::ATTACK
+  end
+
+  def send_notify_msg(area, monster_map, action, detail = {})
+    msg = MonsterMessage.new(area.id, monster_map, action, detail)
     @broadcast_service.send area.map_id, msg.to_json
   end
 end
