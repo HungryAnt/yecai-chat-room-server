@@ -4,6 +4,10 @@ class Monster < Enemy
     @monster_type_id = monster_type_id
   end
 
+  def get_hp_dec
+    100
+  end
+
   def to_map
     {
         id: @id,

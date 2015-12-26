@@ -41,6 +41,7 @@ require 'messages/pet_message'
 require 'messages/monster_message'
 require 'messages/area_enemies_query_message'
 require 'messages/smash_monster_message'
+require 'messages/pet_attack_enemy_message'
 
 require 'models/user'
 require 'models/area'

@@ -173,6 +173,29 @@ class UserController < ControllerBase
     end
   end
 
+  def pet_attack_enemy_message(msg_map, params)
+    msg = PetAttackEnemyMessage.from_map msg_map
+    user_id = msg.user_id
+    area_id = msg.area_id
+    enemy_id = msg.enemy_id
+
+    case msg.enemy_type
+      when 'large_rubbish'
+        damage = @large_rubbish_service.smash area_id, enemy_id
+      when 'monster'
+        damage = @monster_service.smash area_id, enemy_id
+      else
+        return nil
+    end
+
+    exp = damage.to_i
+    if exp > 0
+      new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
+      [UpdateLvMessage.new(user_id, new_lv, new_exp)]
+    else
+      nil
+    end
+  end
 
   def query_area_enemies(msg_map, params)
     msg = AreaLargeRubbishesQueryMessage.from_map(msg_map)

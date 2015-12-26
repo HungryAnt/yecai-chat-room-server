@@ -95,9 +95,9 @@ class MonsterService
 
     area = @all_areas[rand(@all_areas.size)]
 
-    # @mutex.synchronize {
-    #   return if has_monsters? area
-    # }
+    @mutex.synchronize {
+      return if monsters_size(area) >= 2
+    }
 
     if true # rand(3) == 0
       x, y = random_large_available_position(area)
@@ -132,8 +132,8 @@ class MonsterService
     end
   end
 
-  def has_monsters?(area)
-    @area_monsters_disc[area.id].size > 0
+  def monsters_size(area)
+    @area_monsters_disc[area.id].size
   end
 
   def random_large_available_position(area)

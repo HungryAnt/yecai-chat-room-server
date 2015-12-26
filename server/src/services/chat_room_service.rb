@@ -59,9 +59,11 @@ class ChatRoomService
 
     bind 'collecting_nutrient_message', UserController, :collecting_nutrient
 
-    bind'smash_large_rubbish_message', UserController, :smash_large_rubbish
+    bind 'smash_large_rubbish_message', UserController, :smash_large_rubbish
 
-    bind'smash_monster_message', UserController, :smash_monster_message
+    bind 'smash_monster_message', UserController, :smash_monster_message
+
+    bind 'pet_attack_enemy_message', UserController, :pet_attack_enemy_message
 
     bind 'area_enemies_query_message', UserController, :query_area_enemies
 

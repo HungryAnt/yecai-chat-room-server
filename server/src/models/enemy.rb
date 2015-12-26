@@ -7,8 +7,12 @@ class Enemy
     update_location x, y
   end
 
+  def get_hp_dec
+    5 # ±»¹¥»÷ÊÜÉËº¦Öµ
+  end
+
   def smash
-    hp_dec = 5
+    hp_dec = get_hp_dec
     hp_dec = @hp if hp_dec > @hp
     @hp -= hp_dec
     hp_dec
