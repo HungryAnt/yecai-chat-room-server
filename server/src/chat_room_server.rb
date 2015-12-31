@@ -9,6 +9,7 @@ require 'utils/log_util'
 require 'engine/dependency_injection'
 
 require 'config/database_config'
+require 'config/food_config'
 
 require 'messages/init_sync_user_message'
 require 'messages/res_sync_user_message'

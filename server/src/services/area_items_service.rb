@@ -2,7 +2,6 @@
 require 'securerandom'
 
 class AreaItemsService
-  FOOD_TYPE_COUNT = 42
   RUBBISH_TYPE_COUNT = 12
   NUTRIENT_TYPE_COUNT = 3
   TIME_OUT = 60 # 60s超时，物品消失
@@ -132,15 +131,9 @@ class AreaItemsService
   end
 
   def generate_random_food(x, y)
-    food_type_id = rand(FOOD_TYPE_COUNT)
+    food_type_id = rand(FoodConfig::FOOD_TYPE_COUNT)
     id = SecureRandom.uuid
-    if food_type_id == 38 # 辣条
-      energy = 350
-    elsif food_type_id == 41 # 骨头
-      energy = 200
-    else
-      energy = 50
-    end
+    energy = FoodConfig::food_energy food_type_id
     Food.new(id, food_type_id, x, y, energy, energy)
   end
 
