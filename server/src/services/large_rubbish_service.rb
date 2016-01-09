@@ -3,6 +3,7 @@ require 'securerandom'
 
 class LargeRubbishService
   LARGE_RUBBISH_TYPE_COUNT = 29
+  MAX_LARGE_RUBBISH_COUNT = 10
 
   def initialize
     autowired(MapService, BroadcastService)
@@ -35,8 +36,8 @@ class LargeRubbishService
 
   def process_generation
     @mutex.synchronize {
-      # 最多允许同时存在4个大型垃圾
-      return if large_rubbishes_count >= 4
+      # 最多允许同时存在n个大型垃圾
+      return if large_rubbishes_count >= MAX_LARGE_RUBBISH_COUNT
     }
 
     area = @all_areas[rand(@all_areas.size)]

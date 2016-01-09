@@ -3,6 +3,7 @@ class UserService
     @map_user_dict = {}
     @all_user_dict = {}
     @mutex = Mutex.new
+    @all_user_wears_disc = {}
   end
 
   def join(user_id, user_name, map_id, client)
@@ -21,6 +22,7 @@ class UserService
     @mutex.synchronize {
       user_dict = @map_user_dict[map_id]
       return if user_dict.nil?
+      cache_user_wears user_dict[user_id]
       user_dict.delete_if {|k, v| k == user_id}
       @all_user_dict.delete_if {|k, v| k == user_id}
     }
@@ -86,5 +88,18 @@ class UserService
       end
     }
     map_user_count_dict
+  end
+
+  def get_user_wears(user_id)
+    wears = @all_user_wears_disc[user_id]
+    return {} if wears.nil?
+    wears
+  end
+
+  private
+
+  def cache_user_wears(user)
+    return if user.nil?
+    @all_user_wears_disc[user.user_id] = user.wears
   end
 end

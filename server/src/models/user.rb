@@ -23,4 +23,13 @@ class User
     @role_map['food_type_id'] = @food_type_id
     @role_map
   end
+
+  def wears
+    {
+        vehicle: role_map['vehicle'],
+        wing: role_map['wing'],
+        hat: role_map['hat'],
+        eye_wear: role_map['eye_wear']
+    }
+  end
 end

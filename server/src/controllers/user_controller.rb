@@ -17,7 +17,8 @@ class UserController < ControllerBase
     vehicles = @user_vehicle_dao.get_vehicles user_id
     rubbishes = @user_rubbish_service.get_rubbishes user_id
     nutrients = @user_nutrient_service.get_nutrients user_id
-    res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles, rubbishes, nutrients)
+    wears = @user_service.get_user_wears user_id
+    res_sync_user_msg = ResSyncUserMessage.new(user_id, lv, exp, vehicles, rubbishes, nutrients, wears)
     [res_sync_user_msg]
   end
 

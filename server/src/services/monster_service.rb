@@ -2,7 +2,7 @@
 require 'securerandom'
 
 class MonsterService
-  MAX_MONSTER_COUNT = 100
+  MAX_MONSTER_COUNT = 10
 
   MONSTERS = %w(monster_0001 monster_0002 monster_0004 monster_0005 monster_0006
     monster_0007 monster_0008)
@@ -96,10 +96,10 @@ class MonsterService
     area = @all_areas[rand(@all_areas.size)]
 
     @mutex.synchronize {
-      return if monsters_size(area) >= 2
+      return if monsters_size(area) >= 1
     }
 
-    if true # rand(3) == 0
+    if rand(30) == 0
       x, y = random_large_available_position(area)
       monster = generate_random_monster(area, x, y)
       add_monster area, monster
