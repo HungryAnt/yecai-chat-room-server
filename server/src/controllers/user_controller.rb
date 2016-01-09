@@ -5,7 +5,7 @@ class UserController < ControllerBase
     super
     autowired(UserDataDao, UserVehicleDao, UserRubbishService, UserNutrientService,
               UserScoreService, UserService, UserExpService,
-              LargeRubbishService, MonsterService)
+              LargeRubbishService, MonsterService, AreaItemsService)
   end
 
   def init_sync_user(msg_map, params)
@@ -23,9 +23,23 @@ class UserController < ControllerBase
 
   def inc_exp(msg_map, params)
     msg = IncExpMessage.from_map msg_map
-    user_id, exp = msg.user_id, msg.exp
-    if exp < 200
-      new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
+    user_id, food_exp_infos = msg.user_id, msg.food_exp_infos
+    return nil if food_exp_infos.nil?
+    sum_exp = 0
+    food_exp_infos.each do |food_exp_info|
+      food_id = food_exp_info['food_id']
+      exp = food_exp_info['exp'].to_i
+      # 验证食物当前剩余能量够扣
+      LogUtil.info "food_id:#{food_id} exp:#{exp}"
+      if @area_items_service.dec_food_energy(food_id, exp)
+        LogUtil.info 'dec food energy ok'
+        sum_exp += exp
+      else
+        LogUtil.info 'dec food energy wrong'
+      end
+    end
+    if sum_exp > 0 && sum_exp < 200
+      new_lv, new_exp = @user_exp_service.inc_user_exp user_id, sum_exp
       [UpdateLvMessage.new(user_id, new_lv, new_exp)]
     else
       nil

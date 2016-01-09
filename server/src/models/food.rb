@@ -1,6 +1,8 @@
 class Food < Item
   ITEM_TYPE = 'food'
 
+  attr_reader :max_energy
+
   def initialize(id, food_type_id, x, y, max_energy, energy)
     super(id, x, y)
     @food_type_id = food_type_id

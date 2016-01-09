@@ -12,6 +12,9 @@ class AreaItemsService
     @all_areas = @map_service.get_all_areas
     init_area_items
     init_item_generate_thread
+
+    @food_energy_cache = {}
+    @food_energy_cache_mutex = Mutex.new
   end
 
   def get_area_items_by_map_id(map_id)
@@ -52,7 +55,7 @@ class AreaItemsService
   def cmd_rand_food(area_id, x, y)
     area = @map_service.get_area(area_id)
     food = generate_random_food(x, y)
-    add_item(area, food)
+    add_food(area, food)
   end
 
   def cmd_rand_many_food(area_id, count)
@@ -61,7 +64,7 @@ class AreaItemsService
       row, col = area.random_available_location
       x, y = get_position(row, col)
       food = generate_random_food(x, y)
-      add_item(area, food)
+      add_food(area, food)
     end
   end
 
@@ -79,6 +82,16 @@ class AreaItemsService
       food = generate_random_rubbish(x, y)
       add_item(area, food)
     end
+  end
+
+  def dec_food_energy(food_id, dec_energy)
+    @food_energy_cache_mutex.synchronize {
+      current_energy = @food_energy_cache[food_id]
+      LogUtil.info "dec_food_energy food_id:#{food_id} current_energy:#{current_energy} dec_energy:#{dec_energy}"
+      return false if current_energy.nil? || current_energy < dec_energy
+      @food_energy_cache[food_id] = current_energy - dec_energy
+      return true
+    }
   end
 
   private
@@ -115,7 +128,7 @@ class AreaItemsService
       if rand(4) == 0  # 1/4概率出现food
         x, y = get_random_position(area)
         food = generate_random_food(x, y)
-        add_item(area, food)
+        add_food(area, food)
       end
       if rand(13) == 0
         x, y = get_random_position(area)
@@ -147,6 +160,11 @@ class AreaItemsService
     nutrient_type_id = rand(NUTRIENT_TYPE_COUNT)
     id = SecureRandom.uuid
     Nutrient.new(id, nutrient_type_id, x, y)
+  end
+
+  def add_food(area, food)
+    store_food_energy food.id, food.max_energy
+    add_item area, food
   end
 
   def add_item(area, item)
@@ -186,7 +204,10 @@ class AreaItemsService
         end
       end
     }
-    deleted_items.each {|item| notify_item_deleted(area, item)}
+    deleted_items.each do |item|
+      delete_food_energy item.id if item.is_a? Food
+      notify_item_deleted(area, item)
+    end
   end
 
   def notify_item_deleted(area, item)
@@ -202,5 +223,17 @@ class AreaItemsService
 
   def get_position(row, col)
     Area.get_position row, col
+  end
+
+  def store_food_energy(food_id, max_energy)
+    @food_energy_cache_mutex.synchronize {
+      @food_energy_cache[food_id] = max_energy
+    }
+  end
+
+  def delete_food_energy(food_id)
+    @food_energy_cache_mutex.synchronize {
+      @food_energy_cache.delete food_id
+    }
   end
 end

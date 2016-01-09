@@ -1,5 +1,5 @@
 class Enemy
-  attr_reader :id
+  attr_reader :id, :x, :y
 
   def initialize(id, max_hp, x, y)
     @id = id

@@ -115,13 +115,18 @@ class MonsterService
         case monster_action
           when :move
             x, y = random_large_available_position area
-            notify_monster_move area, monster, x, y
+            max_hor = 500 # 单次移动最大横向偏移
+            max_ver = 300 # 单次移动最大纵向偏移
+            tx = [x, monster.x - max_hor].max
+            tx = [tx, monster.x + max_hor].min
+            ty = [y, monster.y - max_ver].max
+            ty = [ty, monster.y + max_ver].min
+            notify_monster_move area, monster, tx, ty
           when :attack
             notify_monster_attack area, monster
           when :stand
             # 不做处理即可
         end
-
       end
     end
   end
