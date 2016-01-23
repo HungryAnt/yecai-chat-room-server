@@ -1,9 +1,13 @@
 #!/bin/sh
 
-PRO_HOME=$(dirname $(readlink -f $0))/..
+PRO_HOME=$(dirname $(readlink -f $0))
 PRO_NAME=yecai-game-service
+
 SUPERVISE_MODULE_NAME=supervise.$PRO_NAME
+SUPERVISE_MODULE="${PRO_HOME}/${SUPERVISE_MODULE_NAME}"
+
 PRO_MODULE_NAME=yecai_game_server.rb
+PRO_MODULE="${PRO_HOME}/${PRO_MODULE_NAME}"
 
 start() {
     stop
@@ -13,7 +17,7 @@ start() {
 
     chmod +x $SUPERVISE_MODULE
 
-    SUPERVISE_CMD="ruby ./yecai_game_server.rb"
+    SUPERVISE_CMD="ruby ${PRO_MODULE}"
     echo "SUPERVISE_CMD=$SUPERVISE_CMD"
     $SUPERVISE_MODULE -p ${STATUS_DIR}/${PRO_NAME} -f "$SUPERVISE_CMD" >/dev/null 2>&1 &
 }
