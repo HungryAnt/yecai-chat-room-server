@@ -6,7 +6,7 @@ PRO_MODULE_NAME=yecai_game_server.rb
 start() {
     stop
 
-    SUPERVISE_CMD="ruby ./chat_room_server.rb > /dev/null 2>&1 &"
+    SUPERVISE_CMD="ruby ./yecai_game_server.rb > /dev/null 2>&1 &"
     echo "SUPERVISE_CMD=$SUPERVISE_CMD"
 }
 
