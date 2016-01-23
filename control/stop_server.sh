@@ -1,3 +1,5 @@
 #! /bin/sh
-PRO_NAME=chat_room_server.rb
-ps aux | grep $PRO_NAME | grep -v grep | awk '{print $2}' | xargs kill -9
+DIR=$(dirname $(readlink -f $0))
+sh $DIR/control.sh stop
+
+

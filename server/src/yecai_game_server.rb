@@ -91,7 +91,7 @@ require 'controllers/area_item_controller'
 require 'controllers/pet_controller'
 
 
-class ChatRoomServer
+class YecaiGameServer
   def initialize
     autowired(ChatRoomService, BroadcastService, UserService,
               MapService, AreaItemsService, EncryptionService)
@@ -166,5 +166,5 @@ class ChatRoomServer
   end
 end
 
-server = ChatRoomServer.new
+server = YecaiGameServer.new
 server.init
