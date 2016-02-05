@@ -28,6 +28,10 @@ class MapService
     end
     area_ids
   end
+
+  # def get_map_id_by_area_id(area_id)
+  #   @area_dict[area_id].map_id
+  # end
 end
 
 lambda do

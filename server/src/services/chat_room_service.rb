@@ -69,6 +69,8 @@ class ChatRoomService
 
     bind 'pet_message', PetController, :update_pet
 
+    bind 'shit_mine_message', ShitMineController, :add_shit_mine
+
   end
 
   def add_client(client)

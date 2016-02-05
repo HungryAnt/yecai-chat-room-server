@@ -43,6 +43,7 @@ require 'messages/monster_message'
 require 'messages/area_enemies_query_message'
 require 'messages/smash_monster_message'
 require 'messages/pet_attack_enemy_message'
+require 'messages/shit_mine_message'
 
 require 'models/user'
 require 'models/area'
@@ -54,6 +55,7 @@ require 'models/exp_tool'
 require 'models/enemy'
 require 'models/large_rubbish'
 require 'models/monster'
+require 'models/shit_mine'
 
 require 'dao/db_connection_pool'
 require 'dao/dao_base'
@@ -82,6 +84,7 @@ require 'services/large_rubbish_service'
 require 'services/user_score_service'
 require 'services/chat_message_service'
 require 'services/monster_service'
+require 'services/shit_mine_service'
 
 require 'controllers/controller_base'
 require 'controllers/command_controller'
@@ -89,6 +92,7 @@ require 'controllers/chat_controller'
 require 'controllers/user_controller'
 require 'controllers/area_item_controller'
 require 'controllers/pet_controller'
+require 'controllers/shit_mine_controller'
 
 
 class YecaiGameServer
