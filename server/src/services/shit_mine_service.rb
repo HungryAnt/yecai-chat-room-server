@@ -1,6 +1,6 @@
 class ShitMineService
   def initialize
-    autowired(MapService, BroadcastService)
+    autowired(MapService, BroadcastService, ShitMineDao)
     @mutex = Mutex.new
     @shit_mines = []
     init_thread
@@ -24,14 +24,16 @@ class ShitMineService
 
   def add(shit_mine_message)
     shit_mine_id = SecureRandom.uuid
+    user_id = shit_mine_message.user_id
     shit_mine_message.id = shit_mine_id
-    shit_mine = ShitMine.new shit_mine_id, shit_mine_message.user_id,
+    shit_mine = ShitMine.new shit_mine_id, user_id,
                              shit_mine_message.area_id, shit_mine_message.x, shit_mine_message.y
     @mutex.synchronize {
       @shit_mines << shit_mine
     }
 
     notify_shit_mine_setup shit_mine_message
+    @shit_mine_dao.decrease_shit_mine user_id
   end
 
   def process_bomb

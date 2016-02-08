@@ -65,6 +65,7 @@ require 'dao/user_rubbish_dao'
 require 'dao/user_nutrient_dao'
 require 'dao/user_score_dao'
 require 'dao/chat_message_dao'
+require 'dao/shit_mine_dao'
 
 require 'services/item_factory'
 require 'services/user_exp_service'
