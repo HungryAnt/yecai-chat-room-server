@@ -1,7 +1,7 @@
 class ShitMine
   attr_reader  :id, :user_id, :area_id, :x, :y, :time_in_s
 
-  DELAY_BOMB_TIME = 3 # 3√Î÷”±¨’®
+  DELAY_BOMB_TIME = 2 # 2√Î÷”±¨’®
 
   def initialize(id, user_id, area_id, x, y)
     @id, @user_id = id, user_id
