@@ -107,7 +107,7 @@ class YecaiGameServer
   def init
     # server = TCPServer.open(2003)
     # loop {
-    Socket.tcp_server_loop(2009) do |client, client_addrinfo|
+    Socket.tcp_server_loop(2010) do |client, client_addrinfo|
       # Thread.start(server.accept) do |client|
       Thread.new {
         begin
