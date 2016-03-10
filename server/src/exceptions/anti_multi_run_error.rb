@@ -1,0 +1,2 @@
+class AntiMultiRunError < RuntimeError
+end

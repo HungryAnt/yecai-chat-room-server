@@ -95,6 +95,8 @@ require 'controllers/area_item_controller'
 require 'controllers/pet_controller'
 require 'controllers/shit_mine_controller'
 
+require 'exceptions/anti_multi_run_error'
+
 
 class YecaiGameServer
   def initialize
@@ -107,7 +109,7 @@ class YecaiGameServer
   def init
     # server = TCPServer.open(2003)
     # loop {
-    Socket.tcp_server_loop(2010) do |client, client_addrinfo|
+    Socket.tcp_server_loop(2010) do |client, addrinfo|
       # Thread.start(server.accept) do |client|
       Thread.new {
         begin
@@ -115,16 +117,22 @@ class YecaiGameServer
             @thread_count += 1
             LogUtil.info "thread count: #{@thread_count}"
           }
-          accept client
-          client.close
+          ip = addrinfo.ip_address
+          port = addrinfo.ip_port
+          puts "new collection ip: #{ip} port: #{port}"
+          accept client, ip, port
+        rescue AntiMultiRunError => e
+          LogUtil.warn 'outer rescue AntiMultiRunError'
         rescue Exception => e
           LogUtil.error 'Thread.start proc raise exception:'
+          LogUtil.error e.message
           LogUtil.error e.backtrace.inspect
         ensure
           @mutex.synchronize {
             @thread_count -= 1
             LogUtil.info "thread count: #{@thread_count}"
           }
+          client.close
         end
       }
       # end
@@ -134,7 +142,7 @@ class YecaiGameServer
 
   private
 
-  def accept(client)
+  def accept(client, ip, port)
     begin
       des = @encryption_service.new_client_des client
       client.puts(des.password + "\n")
@@ -148,19 +156,19 @@ class YecaiGameServer
         line = des.decrypt line
         # LogUtil.info line
         begin
-          response_messages = @chat_room_service.process line, client
+          response_messages = @chat_room_service.process line, client, ip, port
           next if response_messages.nil? || response_messages.length == 0
           response_messages.each do |msg|
             @encryption_service.puts_data(client, msg)
           end
+        rescue AntiMultiRunError => e
+          raise e
         rescue Exception => e
+          LogUtil.error e.message
           LogUtil.error e.backtrace.inspect
           return
         end
       end
-    rescue Exception => e
-      LogUtil.error 'accept client raise exception:'
-      LogUtil.error e.backtrace.inspect
     ensure
       LogUtil.info 'accept_ensure_start'
       @chat_room_service.user_quit client

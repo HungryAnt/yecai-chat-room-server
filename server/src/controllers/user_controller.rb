@@ -6,6 +6,7 @@ class UserController < ControllerBase
     autowired(UserDataDao, UserVehicleDao, UserRubbishService, UserNutrientService,
               UserScoreService, UserService, UserExpService,
               LargeRubbishService, MonsterService, AreaItemsService)
+    init_anti_multi_run
   end
 
   def init_sync_user(msg_map, params)
@@ -72,6 +73,9 @@ class UserController < ControllerBase
   def update_role(msg_map, params)
     role_msg = RoleMessage.from_map(msg_map)
     user_id = role_msg.user_id
+
+    anti_multi_run user_id, params[:ip], params[:port]
+
     map_id = @user_service.get_map_id user_id
     @user_service.update_role user_id, role_msg.role_map
 
@@ -233,5 +237,42 @@ class UserController < ControllerBase
     end
 
     enemies_msgs
+  end
+
+  private
+
+  def init_anti_multi_run
+    @mutex_anti_multi_run = Mutex.new
+    @user_ip_infos = {}
+  end
+
+  def anti_multi_run(user_id, ip, port)
+    @mutex_anti_multi_run.synchronize {
+      now = Time.now.to_i
+      ip_info = @user_ip_infos[user_id]
+      if ip_info.nil?
+        ip_info = {
+            ip: ip,
+            port: port,
+            time: now
+        }
+        @user_ip_infos[user_id] = ip_info
+        return
+      end
+
+      if ip_info[:ip] == ip && ip_info[:port] == port
+        ip_info[:time] = now
+        return
+      end
+
+      if (now - ip_info[:time]).abs < 10
+        LogUtil.warn "anti_multi_run user_id: #{user_id} ip: #{ip} port: #{port}"
+        raise AntiMultiRunError.new
+      else
+        ip_info[:ip] = ip
+        ip_info[:port] = port
+        ip_info[:time] = now
+      end
+    }
   end
 end

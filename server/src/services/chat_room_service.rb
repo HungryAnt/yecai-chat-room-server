@@ -97,25 +97,28 @@ class ChatRoomService
     end
   end
 
-  def process(line, client)
+  def process(line, client, ip, port)
     return nil if line.nil? || line == ''
     begin
       msg_map = JSON.parse(line)
-      response_messages = process_message msg_map, client
+      response_messages = process_message msg_map, client, ip, port
       if response_messages.nil?
         return nil
       else
         return to_json_list(response_messages)
       end
+    rescue AntiMultiRunError => e
+      raise e
     rescue Exception => e
+      LogUtil.error "e.message #{e.message}"
       LogUtil.error "line #{line}"
       LogUtil.error e.backtrace.inspect
       return nil
     end
   end
 
-  def process_message(msg_map, client = nil)
-    @message_handler_service.process(msg_map, :client=>client)
+  def process_message(msg_map, client, ip, port)
+    @message_handler_service.process(msg_map, client: client, ip: ip, port: port)
   end
 
   private
