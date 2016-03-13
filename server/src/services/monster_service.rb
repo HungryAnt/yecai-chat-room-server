@@ -9,12 +9,20 @@ class MonsterService
 
   SNOW_MONSTER = 'monster_20000'
 
+  WILD_MONSTERS = lambda {
+    monsters = []
+    1.upto(15) do |num|
+      monsters << "wild_monster_#{'%04d' % num}"
+    end
+    monsters
+  }.call
+
   MONSTER_ACTIONS = [:move, :attack, :stand]
 
   def initialize
     autowired(MapService, BroadcastService)
     @mutex = Mutex.new
-    @all_areas = @map_service.get_village_areas
+    @all_areas = @map_service.get_hunting_areas # @map_service.get_village_areas + @map_service.get_hunting_areas
     init_monsters
     init_thread
   end
@@ -82,7 +90,7 @@ class MonsterService
           LogUtil.error 'monster process raise exception:'
           LogUtil.error e.backtrace.inspect
         end
-        sleep(5)
+        sleep(1) # sleep(5)
       }
     }
   end
@@ -96,10 +104,15 @@ class MonsterService
     area = @all_areas[rand(@all_areas.size)]
 
     @mutex.synchronize {
-      return if monsters_size(area) >= 1
+      if area.area_type == :hunting
+        return if monsters_size(area) >= 10
+      else
+        return if monsters_size(area) >= 1
+      end
     }
 
-    if rand(30) == 0
+    rand_value = 1 # 30
+    if rand(rand_value) == 0
       x, y = random_large_available_position(area)
       monster = generate_random_monster(area, x, y)
       add_monster area, monster
@@ -150,10 +163,14 @@ class MonsterService
     id = SecureRandom.uuid
     max_hp = 1500
 
-    if area.map_id == 'snow_village'
-      monster_type_id = SNOW_MONSTER
+    if area.area_type == :hunting
+      monster_type_id = WILD_MONSTERS[rand(WILD_MONSTERS.size)]
     else
-      monster_type_id = MONSTERS[rand(MONSTERS.size)] # "#{'%04d' % rand(MONSTER_TYPE_COUNT)}"
+      if area.map_id == 'snow_village'
+        monster_type_id = SNOW_MONSTER
+      else
+        monster_type_id = MONSTERS[rand(MONSTERS.size)] # "#{'%04d' % rand(MONSTER_TYPE_COUNT)}"
+      end
     end
 
     Monster.new(id, monster_type_id, max_hp, x, y)

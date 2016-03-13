@@ -197,4 +197,4 @@ picnic_3_tiles_text = <<TILES
 ################################################################################
 TILES
 
-create_area('picnic_3', 'picnic', picnic_3_tiles_text)
+create_area('picnic_3', 'picnic', picnic_3_tiles_text, :village)

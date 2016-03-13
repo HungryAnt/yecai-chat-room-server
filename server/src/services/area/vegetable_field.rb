@@ -65,4 +65,4 @@ tiles_text = <<TILES
 ################################################################################################################################################################
 TILES
 
-create_area('vegetable_field', 'vegetable_field', tiles_text, :village)
+create_area('vegetable_field', 'vegetable_field', tiles_text, :hunting)

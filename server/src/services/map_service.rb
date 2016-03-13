@@ -16,7 +16,11 @@ class MapService
   end
 
   def get_village_areas
-    @area_dict.values.find_all {|area| area.area_type == :village}
+    get_areas_by_type :village
+  end
+
+  def get_hunting_areas
+    get_areas_by_type :hunting
   end
 
   def get_map_area_ids(map_id)
@@ -32,6 +36,12 @@ class MapService
   # def get_map_id_by_area_id(area_id)
   #   @area_dict[area_id].map_id
   # end
+
+  private
+
+  def get_areas_by_type(area_type)
+    @area_dict.values.find_all {|area| area.area_type == area_type}
+  end
 end
 
 lambda do
