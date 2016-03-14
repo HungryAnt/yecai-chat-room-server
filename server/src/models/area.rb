@@ -21,6 +21,11 @@ class Area
     @large_available_locations[rand @large_available_locations.size]
   end
 
+  def random_large_available_position
+    row, col = random_large_available_location
+    Area.get_position row, col
+  end
+
   def self.get_position(row, col)
     [GRID_WIDTH * col + GRID_WIDTH / 2,
      GRID_HEIGHT * row + GRID_HEIGHT / 2]

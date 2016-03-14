@@ -1,28 +1,16 @@
 # coding: UTF-8
 require 'securerandom'
+require_relative 'monster/village_monster_service'
+require_relative 'monster/wild_monster_service'
 
 class MonsterService
-  MAX_MONSTER_COUNT = 10
-
-  MONSTERS = %w(monster_0001 monster_0002 monster_0004 monster_0005 monster_0006
-    monster_0007 monster_0008)
-
-  SNOW_MONSTER = 'monster_20000'
-
-  WILD_MONSTERS = lambda {
-    monsters = []
-    1.upto(15) do |num|
-      monsters << "wild_monster_#{'%04d' % num}"
-    end
-    monsters
-  }.call
 
   MONSTER_ACTIONS = [:move, :attack, :stand]
 
   def initialize
     autowired(MapService, BroadcastService)
     @mutex = Mutex.new
-    @all_areas = @map_service.get_hunting_areas # @map_service.get_village_areas + @map_service.get_hunting_areas
+    init_areas
     init_monsters
     init_thread
   end
@@ -73,8 +61,14 @@ class MonsterService
 
   private
 
+  def init_areas
+  end
+
   def init_monsters
+    @village_monster_service = VillageMonsterService.new @map_service
+    @wild_monster_service = WildMonsterService.new @map_service
     @area_monsters_disc = {}
+    @all_areas = @village_monster_service.areas + @wild_monster_service.areas
     @all_areas.each { |area| @area_monsters_disc[area.id] = [] }
   end
 
@@ -84,64 +78,66 @@ class MonsterService
 
       loop {
         begin
-          process_monster_generation
-          process_monsters
+          [@village_monster_service, @wild_monster_service].each do |monster_service|
+            process_monster_generation monster_service
+            process_monsters monster_service
+          end
         rescue Exception => e
           LogUtil.error 'monster process raise exception:'
           LogUtil.error e.backtrace.inspect
         end
-        sleep(1) # sleep(5)
+        sleep(5)
       }
     }
   end
 
-  def process_monster_generation
+  def process_monster_generation(monster_service)
     @mutex.synchronize {
       # 怪物数量控制
-      return if get_monsters_count >= MAX_MONSTER_COUNT
+      total_count = monster_service.areas.inject(0) do |sum, area|
+        sum + monsters_size(area)
+      end
+
+      return if monster_service.is_total_count_enough? total_count
     }
 
-    area = @all_areas[rand(@all_areas.size)]
+    area = monster_service.get_random_area
 
     @mutex.synchronize {
-      if area.area_type == :hunting
-        return if monsters_size(area) >= 10
-      else
-        return if monsters_size(area) >= 1
-      end
+      monster_service.is_area_count_enough?(area, monsters_size(area))
     }
 
-    rand_value = 1 # 30
-    if rand(rand_value) == 0
-      x, y = random_large_available_position(area)
-      monster = generate_random_monster(area, x, y)
+    if rand(monster_service.rand_value) == 0
+      monster = monster_service.generate_monster area
       add_monster area, monster
     end
   end
 
-  def process_monsters
-    @area_monsters_disc.each_entry do |area_id, monsters|
-      area = @map_service.get_area area_id
+  def process_monsters(monster_service)
+    @mutex.synchronize {
+      monster_service.areas.each do |area|
+        monsters = @area_monsters_disc[area.id]
 
-      monsters.each do |monster|
-        monster_action = MONSTER_ACTIONS[rand(MONSTER_ACTIONS.size)]
-        case monster_action
-          when :move
-            x, y = random_large_available_position area
-            max_hor = 500 # 单次移动最大横向偏移
-            max_ver = 300 # 单次移动最大纵向偏移
-            tx = [x, monster.x - max_hor].max
-            tx = [tx, monster.x + max_hor].min
-            ty = [y, monster.y - max_ver].max
-            ty = [ty, monster.y + max_ver].min
-            notify_monster_move area, monster, tx, ty
-          when :attack
-            notify_monster_attack area, monster
-          when :stand
-            # 不做处理即可
+        monsters.each do |monster|
+          monster_action = MONSTER_ACTIONS[rand(MONSTER_ACTIONS.size)]
+          case monster_action
+            when :move
+              x, y = monster_service.random_large_available_position area, monster
+              max_hor = 500 # 单次移动最大横向偏移
+              max_ver = 300 # 单次移动最大纵向偏移
+              tx = [x, monster.x - max_hor].max
+              tx = [tx, monster.x + max_hor].min
+              ty = [y, monster.y - max_ver].max
+              ty = [ty, monster.y + max_ver].min
+              notify_monster_move area, monster, tx, ty
+            when :attack
+              notify_monster_attack area, monster
+            when :stand
+              # 不做处理即可
+          end
         end
       end
-    end
+    }
   end
 
   def get_monsters_count
@@ -152,28 +148,6 @@ class MonsterService
 
   def monsters_size(area)
     @area_monsters_disc[area.id].size
-  end
-
-  def random_large_available_position(area)
-    row, col = area.random_large_available_location
-    Area.get_position(row, col)
-  end
-
-  def generate_random_monster(area, x, y)
-    id = SecureRandom.uuid
-    max_hp = 1500
-
-    if area.area_type == :hunting
-      monster_type_id = WILD_MONSTERS[rand(WILD_MONSTERS.size)]
-    else
-      if area.map_id == 'snow_village'
-        monster_type_id = SNOW_MONSTER
-      else
-        monster_type_id = MONSTERS[rand(MONSTERS.size)] # "#{'%04d' % rand(MONSTER_TYPE_COUNT)}"
-      end
-    end
-
-    Monster.new(id, monster_type_id, max_hp, x, y)
   end
 
   def add_monster(area, monster)
