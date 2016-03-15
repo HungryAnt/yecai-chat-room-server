@@ -83,7 +83,7 @@ class MonsterService
             process_monsters monster_service
           end
         rescue Exception => e
-          LogUtil.error 'monster process raise exception:'
+          LogUtil.error "monster process raise exception: #{e.message}"
           LogUtil.error e.backtrace.inspect
         end
         sleep(5)
@@ -108,8 +108,10 @@ class MonsterService
     }
 
     if rand(monster_service.rand_value) == 0
-      monster = monster_service.generate_monster area
-      add_monster area, monster
+      monster = monster_service.generate_monster area, get_area_monsters(area)
+      unless monster.nil?
+        add_monster area, monster
+      end
     end
   end
 
@@ -156,6 +158,12 @@ class MonsterService
       monsters << monster
     }
     notify_monster_created area, monster
+  end
+
+  def get_area_monsters(area)
+    @mutex.synchronize {
+      return @area_monsters_disc[area.id].map { |monster| monster.monster_type_id }
+    }
   end
 
   def notify_monster_created(area, monster)

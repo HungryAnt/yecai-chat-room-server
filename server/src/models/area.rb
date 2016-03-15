@@ -11,6 +11,7 @@ class Area
     init_tails tiles_text.lines.map {|line|line.chomp}
     init_available_location
     init_large_available_location
+    @locations_cache = {}
   end
 
   def random_available_location
@@ -19,6 +20,30 @@ class Area
 
   def random_large_available_location
     @large_available_locations[rand @large_available_locations.size]
+  end
+
+  # 以origin为原点，取地周边一定范围内随机的一个可移动方格位置
+  def random_large_available_location_with_origin(origin_row, origin_col)
+    key = "#{origin_row}_#{origin_col}"
+    blank_locations = @locations_cache[key]
+    if blank_locations.nil?
+      min_col = [origin_col - 50, 0].max
+      max_col = [origin_col + 50, @col_count - 1].min
+      min_row = [origin_row - 30, 0].max
+      max_row = [origin_row + 30, @row_count - 1].min
+
+      blank_locations = []
+      min_col.upto(max_col) do |col|
+        min_row.upto(max_row) do |row|
+          if is_blank_tile?(row, col)
+            blank_locations << [row, col]
+          end
+        end
+      end
+      @locations_cache[key] = blank_locations
+    end
+
+    blank_locations[rand blank_locations.size]
   end
 
   def random_large_available_position
@@ -62,10 +87,14 @@ class Area
     @large_available_locations = []
     edge_grid_count.upto(@row_count-1-edge_grid_count) do |row|
       edge_grid_count.upto(@col_count-1-edge_grid_count) do |col|
-        if @tiles[row][col] == ' ' || @tiles[row][col] == 'X'
+        if is_blank_tile? row, col
           @large_available_locations << [row, col]
         end
       end
     end
+  end
+
+  def is_blank_tile?(row, col)
+    @tiles[row][col] == ' ' || @tiles[row][col] == 'X'
   end
 end

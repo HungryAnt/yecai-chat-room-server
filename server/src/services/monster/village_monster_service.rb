@@ -24,7 +24,7 @@ class VillageMonsterService < MonsterBaseService
     30
   end
 
-  def generate_monster(area)
+  def generate_monster(area, monster_type_ids)
     x, y = area.random_large_available_position
     monster = generate_random_monster(area, x, y)
     monster
