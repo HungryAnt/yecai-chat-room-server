@@ -11,7 +11,7 @@ class ResSyncUserMessage
     {
         type: 'res_sync_user_message',
         data: {user_id: @user_id, lv: @lv, exp: @exp, vehicles: @vehicles,
-               rubbishes: @rubbishes, nutrients: @nutrients, wears:@wears}
+               rubbishes: @rubbishes, nutrients: @nutrients, wears: @wears}
     }.to_json(*a)
   end
 

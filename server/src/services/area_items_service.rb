@@ -9,7 +9,7 @@ class AreaItemsService
   def initialize
     autowired(MapService, BroadcastService)
     @mutex = Mutex.new
-    @all_areas = @map_service.get_all_areas
+    @all_areas = @map_service.get_all_areas - @map_service.get_hunting_areas
     init_area_items
     init_item_generate_thread
 

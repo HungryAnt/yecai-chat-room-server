@@ -27,10 +27,10 @@ class Area
     key = "#{origin_row}_#{origin_col}"
     blank_locations = @locations_cache[key]
     if blank_locations.nil?
-      min_col = [origin_col - 50, 0].max
-      max_col = [origin_col + 50, @col_count - 1].min
-      min_row = [origin_row - 30, 0].max
-      max_row = [origin_row + 30, @row_count - 1].min
+      min_col = [origin_col - 25, 0].max
+      max_col = [origin_col + 25, @col_count - 1].min
+      min_row = [origin_row - 15, 0].max
+      max_row = [origin_row + 15, @row_count - 1].min
 
       blank_locations = []
       min_col.upto(max_col) do |col|
