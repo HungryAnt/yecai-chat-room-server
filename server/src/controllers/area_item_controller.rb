@@ -12,8 +12,10 @@ class AreaItemController < ControllerBase
     if area_items_dict.size > 0
       area_items_msgs = []
       area_items_dict.each_pair do |area_id, items|
-        items.each do |item|
-          area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
+        unless items.nil?
+          items.each do |item|
+            area_items_msgs << AreaItemMessage.new(area_id, item.to_map, AreaItemMessage::Action::CREATE)
+          end
         end
       end
       area_items_msgs

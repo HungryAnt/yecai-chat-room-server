@@ -84,19 +84,19 @@ class WildMonsterService < MonsterBaseService
         },
         hunting_2: {
             monsters: [
-                { type_id:'wild_monster_0008', max_hp:3800, location: [42, 40] },
+                { type_id:'wild_monster_0008', max_hp:3500, location: [42, 40] },
             ]
         },
         circus_0: {
             monsters: [
                 { type_id:'wild_monster_0013', max_hp:1500, location: [42, 50] },
-                { type_id:'wild_monster_0014', max_hp:2500, location: [42, 100] },
+                { type_id:'wild_monster_0012', max_hp:1500, location: [42, 100] },
             ]
         },
         circus_1: {
             monsters: [
-                { type_id:'wild_monster_0012', max_hp:2000, location: [42, 40] },
-                { type_id:'wild_monster_0015', max_hp:3500, location: [42, 105] },
+                { type_id:'wild_monster_0014', max_hp:2200, location: [42, 40] },
+                { type_id:'wild_monster_0015', max_hp:3000, location: [42, 105] },
             ]
         }
     }
