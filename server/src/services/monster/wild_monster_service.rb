@@ -23,10 +23,13 @@ class WildMonsterService < MonsterBaseService
   end
 
   def rand_value
-    1
+    5
   end
 
   def generate_monster(area, monster_type_ids)
+    current_hour = Time.now.hour
+    return if current_hour < 9 || current_hour > 24
+
     area_info = get_area_info area
     monster_infos = area_info[:monsters]
 
