@@ -104,7 +104,7 @@ class MonsterService
     area = monster_service.get_random_area
 
     @mutex.synchronize {
-      monster_service.is_area_count_enough?(area, monsters_size(area))
+      return if monster_service.is_area_count_enough?(area, monsters_size(area))
     }
 
     if rand(monster_service.rand_value) == 0
