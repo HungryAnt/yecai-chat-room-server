@@ -109,7 +109,7 @@ class YecaiGameServer
   def init
     # server = TCPServer.open(2003)
     # loop {
-    Socket.tcp_server_loop(2011) do |client, addrinfo|
+    Socket.tcp_server_loop(2012) do |client, addrinfo|
       # Thread.start(server.accept) do |client|
       Thread.new {
         begin
@@ -149,8 +149,18 @@ class YecaiGameServer
       LogUtil.info 'accept @chat_room_service.add_client'
       @chat_room_service.add_client client
       LogUtil.info "password:#{des.password} start readline loop"
-      while (line = client.readline)
-        next if line.nil?
+
+      line_fragment = ''
+      while (line = line_fragment + client.readline)
+        # next if line.nil?
+
+        line_fragment = ''
+        unless line.include? "\n"
+          line_fragment = line
+          LogUtil.warn "catching line_fragment: #{line_fragment}"
+          next
+        end
+
         line = line.chomp
         line.gsub! /\n|\r/, ''
         line = des.decrypt line
