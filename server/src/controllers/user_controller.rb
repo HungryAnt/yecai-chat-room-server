@@ -5,7 +5,8 @@ class UserController < ControllerBase
     super
     autowired(UserDataDao, UserVehicleDao, UserRubbishService, UserNutrientService,
               UserScoreService, UserService, UserExpService,
-              LargeRubbishService, MonsterService, AreaItemsService)
+              LargeRubbishService, MonsterService, AreaItemsService,
+              PetLevelService)
     init_anti_multi_run
   end
 
@@ -209,6 +210,9 @@ class UserController < ControllerBase
 
     exp = damage.to_i
     if exp > 0
+      # todo inc pet level exp
+
+
       new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
       [UpdateLvMessage.new(user_id, new_lv, new_exp)]
     else

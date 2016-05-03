@@ -18,6 +18,7 @@ require 'services/broadcast_service'
 require 'services/user_service'
 require 'services/user_rubbish_service'
 require 'services/user_nutrient_service'
+require 'services/pet_level_service'
 
 require 'config/database_config'
 require 'dao/db_connection_pool'

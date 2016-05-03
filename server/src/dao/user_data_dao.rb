@@ -1,3 +1,5 @@
+require_relative 'dao_base'
+
 class UserDataDao < DaoBase
   def clear
     execute do |conn|

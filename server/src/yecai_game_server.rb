@@ -86,6 +86,7 @@ require 'services/user_score_service'
 require 'services/chat_message_service'
 require 'services/monster_service'
 require 'services/shit_mine_service'
+require 'services/pet_level_service'
 
 require 'controllers/controller_base'
 require 'controllers/command_controller'
