@@ -195,6 +195,7 @@ class UserController < ControllerBase
 
   def pet_attack_enemy_message(msg_map, params)
     msg = PetAttackEnemyMessage.from_map msg_map
+    pet_id = msg.pet_id
     user_id = msg.user_id
     area_id = msg.area_id
     enemy_id = msg.enemy_id
@@ -210,11 +211,12 @@ class UserController < ControllerBase
 
     exp = damage.to_i
     if exp > 0
-      # todo inc pet level exp
-
-
+      pet_level = @pet_level_service.inc_exp pet_id, damage
       new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
-      [UpdateLvMessage.new(user_id, new_lv, new_exp)]
+      [
+          UpdateLvMessage.new(user_id, new_lv, new_exp),
+          UpdatePetLvMessage.new(pet_id, pet_level[:lv], pet_level[:exp_in_lv], pet_level[:max_exp_in_lv])
+      ]
     else
       nil
     end
