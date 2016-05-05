@@ -26,10 +26,16 @@ class PetLevelServiceTestTest < MiniTest::Test
   def test_inc_exp
     pet_id = 'pet_id'
     assert_equal 0, @pet_level_service.get_exp(pet_id)
-    @pet_level_service.inc_exp(pet_id, 5000)
+    @pet_level_service.inc_lv_exp(pet_id, 5000)
     assert_equal 5000, @pet_level_service.get_exp(pet_id)
-    @pet_level_service.inc_exp(pet_id, 5000)
+    @pet_level_service.inc_lv_exp(pet_id, 5000)
     assert_equal 10000, @pet_level_service.get_exp(pet_id)
+
+    # 经验达到最大值后，不再增加
+    @pet_level_service.inc_lv_exp(pet_id, PetLevelService::MAX_EXP)
+    assert_equal PetLevelService::MAX_EXP, @pet_level_service.get_exp(pet_id)
+    @pet_level_service.inc_lv_exp(pet_id, 100)
+    assert_equal PetLevelService::MAX_EXP, @pet_level_service.get_exp(pet_id)
   end
 
   def test_to_level

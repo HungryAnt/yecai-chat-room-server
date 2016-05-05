@@ -211,12 +211,20 @@ class UserController < ControllerBase
 
     exp = damage.to_i
     if exp > 0
-      pet_level = @pet_level_service.inc_exp pet_id, damage
-      new_lv, new_exp = @user_exp_service.inc_user_exp user_id, exp
-      [
-          UpdateLvMessage.new(user_id, new_lv, new_exp),
-          UpdatePetLvMessage.new(pet_id, pet_level[:lv], pet_level[:exp_in_lv], pet_level[:max_exp_in_lv])
-      ]
+      pet_level, pet_exp_inc = @pet_level_service.inc_lv_exp pet_id, exp
+      msgs = []
+      if pet_exp_inc > 0
+        msgs << UpdatePetLvMessage.new(pet_id, pet_level[:lv], pet_level[:exp_in_lv], pet_level[:max_exp_in_lv])
+      end
+
+      # 经验优先增加给宠物，若宠物经验已满，则加给用户
+      user_exp_inc = exp - pet_exp_inc
+      if user_exp_inc > 0
+        user_new_lv, user_new_exp = @user_exp_service.inc_user_exp user_id, exp
+        msgs << UpdateLvMessage.new(user_id, user_new_lv, user_new_exp)
+      end
+
+      msgs
     else
       nil
     end

@@ -2,6 +2,13 @@ require 'redis'
 
 class PetLevelService
   EXP_PER_LV = 200
+  MAX_LV = 20
+
+  def self.lv_max_exp(lv)
+    EXP_PER_LV * (lv - 1) * lv / 2
+  end
+
+  MAX_EXP = lv_max_exp MAX_LV
 
   def initialize
     @redis = Redis.new(:host => 'localhost', :port => 6379, :db => 1)
@@ -12,14 +19,18 @@ class PetLevelService
   end
 
   # 返回更新后的经验值
-  def inc_exp(pet_id, exp_inc)
-    # @redis.multi do |multi|
-    #   multi.set(pet_id, exp_inc)
-    # end
-    exp_total = @redis.incrby(to_key(pet_id), exp_inc)
+  def inc_lv_exp(pet_id, exp_inc)
+    pre_exp_total = get_exp pet_id
+    pre_exp_total.nil? ? pre_exp_total = 0 : pre_exp_total = pre_exp_total.to_i
+    actual_exp_inc = [exp_inc, MAX_EXP - pre_exp_total].min
+    exp_total = pre_exp_total + actual_exp_inc
+    if actual_exp_inc > 0
+      # exp_total = @redis.incrby(to_key(pet_id), actual_exp_inc)
+      set_exp pet_id, exp_total
+    end
     level = PetLevelService.to_level exp_total
     LogUtil.info "pet inc_exp pet_id:#{pet_id} level:#{level}"
-    level
+    [level, actual_exp_inc]
   end
 
   def set_exp(pet_id, exp)
@@ -42,7 +53,7 @@ class PetLevelService
     b = -1.0
     c = -2.0 * exp_total / EXP_PER_LV
     lv = ((-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a)).to_i
-    exp_lv_base = EXP_PER_LV * (lv - 1) * lv / 2
+    exp_lv_base = lv_max_exp lv
     exp_in_lv = exp_total - exp_lv_base
     max_exp_in_lv = EXP_PER_LV * lv
     {
